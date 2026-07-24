@@ -1,6 +1,6 @@
 import prisma from "../../../config/prisma";
 import AppError from "../../Errors/AppError";
-import { IRegisterUser } from "./auth.interface";
+import { ILoginUser, IRegisterUser } from "./auth.interface";
 import bcrypt from "bcrypt";
 import httpStatus from "http-status-codes";
 
@@ -40,6 +40,28 @@ const registerUser = async (payload: IRegisterUser) => {
   return user;
 };
 
+const loginUser = async (payload: ILoginUser) => {
+  const { email, password } = payload;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const isPasswordMatched = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatched) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
+  }
+  return user;
+};
+
 export const AuthService = {
   registerUser,
+  loginUser,
 };
