@@ -6,7 +6,7 @@ import httpStatus from "http-status-codes";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
-  console.log("hello", payload);
+
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -33,8 +33,8 @@ const registerUser = async (payload: IRegisterUser) => {
       name: true,
       email: true,
       role: true,
+      password: true,
       isVerified: true,
-      createdAt: true,
     },
   });
   return user;
