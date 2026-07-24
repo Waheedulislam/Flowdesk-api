@@ -1,5 +1,6 @@
 import prisma from "../../../config/prisma";
 import { IRegisterUser } from "./auth.interface";
+import bcrypt from "bcrypt";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
@@ -16,8 +17,25 @@ const registerUser = async (payload: IRegisterUser) => {
   }
 
   // Hash password
-  // const hashPassword=await
-  // const isUserExists = await prisma.user.create();
+  const hashPassword = await bcrypt.hash(password, 10);
+
+  // Create user
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashPassword,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isVerified: true,
+      createdAt: true,
+    },
+  });
+  return user;
 };
 
 export const AuthService = {
