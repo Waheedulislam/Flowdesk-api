@@ -1,6 +1,8 @@
 import prisma from "../../../config/prisma";
+import AppError from "../../Errors/AppError";
 import { IRegisterUser } from "./auth.interface";
 import bcrypt from "bcrypt";
+import httpStatus from "http-status-codes";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
@@ -13,7 +15,7 @@ const registerUser = async (payload: IRegisterUser) => {
   });
 
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new AppError(httpStatus.CONFLICT, "User already exists");
   }
 
   // Hash password
