@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
-
+  console.log("hello", payload);
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
     where: {

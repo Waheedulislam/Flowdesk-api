@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response, Router } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import httpStatus from "http-status-codes";
 
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
+import router from "./app/routes";
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // API Routes
-app.use("/api/v1", Router);
+app.use("/api/v1", router);
 
 // Global Error Handler
 app.use(globalErrorHandler);
