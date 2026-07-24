@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { NextFunction, Request, Response, Router } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -35,13 +35,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // API Routes
-// app.use("/api/v1", router);
-app.get("/api/v1", (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "FlowDesk API v1",
-  });
-});
+app.use("/api/v1", Router);
 
 // Global Error Handler
 app.use(globalErrorHandler);

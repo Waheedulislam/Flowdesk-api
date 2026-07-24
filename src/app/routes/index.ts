@@ -1,16 +1,16 @@
-// import express from "express";
-// import path from "path";
-// // import { PatientRoutes } from "../../patientRoutes";
+import express from "express";
+import path from "path";
+import { AuthRoutes } from "../modules/auth/auth.route";
 
-// const router = express.Router();
+const router = express.Router();
 
-// const moduleRoutes = [
-//   {
-//     path: "/user",
-//     route: PatientRoutes,
-//   },
-// ];
+const moduleRoutes = [
+  {
+    path: "/user",
+    route: AuthRoutes,
+  },
+];
 
-// moduleRoutes.forEach((route) => router.use(route.path, route.route));
+moduleRoutes.forEach((route) => router.use(route.path, route.route));
 
-// export default router;
+export default router;
