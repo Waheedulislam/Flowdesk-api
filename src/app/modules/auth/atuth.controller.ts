@@ -18,3 +18,6 @@ const registerUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+export const AuthController = {
+  registerUser,
+};
