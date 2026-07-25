@@ -18,21 +18,6 @@ const verifyToken = (token: string, secret: Secret) => {
   return jwt.verify(token, secret) as JwtPayload;
 };
 
-// option-2
-
-// const generateToken = (
-//   payload: string | object | Buffer,
-//   secret: string,
-//   expiresIn: SignOptions["expiresIn"]
-// ): string => {
-//   const token: SignOptions = {
-//     algorithm: "HS256",
-//     expiresIn,
-//   };
-
-//   return jwt.sign(payload, secret, token);
-// };
-
 export const jwtHelpers = {
   generateToken,
   verifyToken,
