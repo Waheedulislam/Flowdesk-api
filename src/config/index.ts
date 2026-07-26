@@ -15,11 +15,11 @@ const config = {
   databaseUrl: process.env.DATABASE_URL!,
 
   jwt: {
-    accessSecret: process.env.JWT_ACCESS_SECRET!,
-    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+    access_token_secret: process.env.JWT_ACCESS_TOKEN_SECRET!,
+    access_token_expires_in: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN!,
 
-    refreshSecret: process.env.JWT_REFRESH_SECRET!,
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN!,
+    refresh_token_secret: process.env.JWT_REFRESH_TOKEN_SECRET!,
+    refresh_token_expires_in: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN!,
   },
 
   bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS) || 10,

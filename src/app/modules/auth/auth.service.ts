@@ -1,4 +1,8 @@
+import { Secret, SignOptions } from "jsonwebtoken";
+import config from "../../../config";
 import prisma from "../../../config/prisma";
+import { UserStatus } from "../../../generated/prisma";
+import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import AppError from "../../Errors/AppError";
 import { ILoginUser, IRegisterUser } from "./auth.interface";
 import bcrypt from "bcrypt";
@@ -33,7 +37,6 @@ const registerUser = async (payload: IRegisterUser) => {
       name: true,
       email: true,
       role: true,
-      password: true,
       isVerified: true,
     },
   });
@@ -43,22 +46,40 @@ const registerUser = async (payload: IRegisterUser) => {
 const loginUser = async (payload: ILoginUser) => {
   const { email, password } = payload;
 
-  const user = await prisma.user.findUnique({
+  const userData = await prisma.user.findUnique({
     where: {
       email,
+      status: UserStatus.ACTIVE,
     },
   });
 
-  if (!user) {
+  if (!userData) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const isPasswordMatched = await bcrypt.compare(password, user.password);
+  const isPasswordMatched: boolean = await bcrypt.compare(
+    password,
+    userData.password,
+  );
 
   if (!isPasswordMatched) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
   }
-  return user;
+
+  // Token information to be sent in response
+  const jwtPayload = {
+    userId: userData.id,
+    email: userData.email,
+    role: userData.role,
+  };
+
+  const accessToken = jwtHelpers.generateToken(
+    jwtPayload,
+    config.jwt.access_token_secret as Secret,
+    config.jwt.access_token_expires_in as SignOptions["expiresIn"],
+  );
+
+  return { accessToken };
 };
 
 export const AuthService = {

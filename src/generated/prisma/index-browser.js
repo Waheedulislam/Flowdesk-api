@@ -197,7 +197,8 @@ exports.Prisma.TaskScalarFieldEnum = {
   dueDate: 'dueDate',
   order: 'order',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userId: 'userId'
 };
 
 exports.Prisma.TaskCommentScalarFieldEnum = {
@@ -275,12 +276,14 @@ exports.Prisma.JsonNullValueFilter = {
 };
 exports.UserRole = exports.$Enums.UserRole = {
   SYSTEM_ADMIN: 'SYSTEM_ADMIN',
+  ADMIN: 'ADMIN',
   USER: 'USER'
 };
 
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
+  BLOCKED: 'BLOCKED',
   DELETED: 'DELETED'
 };
 
