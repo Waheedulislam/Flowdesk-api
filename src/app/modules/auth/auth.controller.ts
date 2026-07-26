@@ -1,3 +1,4 @@
+import config from "../../../config";
 import { catchAsync } from "../../../utils/catchAsync";
 import { sendResponse } from "../../../utils/sendResponse";
 import { AuthService } from "./auth.service";
@@ -19,11 +20,21 @@ const loginUser = catchAsync(async (req, res) => {
   const payload = req.body;
   const result = await AuthService.loginUser(payload);
 
+  const { refreshToken, accessToken } = result;
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: config.env === "production",
+    sameSite: "lax",
+  });
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "User logged in successfully",
-    data: result,
+    data: {
+      accessToken: result.accessToken,
+    },
   });
 });
 

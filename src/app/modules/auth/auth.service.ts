@@ -7,6 +7,7 @@ import AppError from "../../Errors/AppError";
 import { ILoginUser, IRegisterUser } from "./auth.interface";
 import bcrypt from "bcrypt";
 import httpStatus from "http-status-codes";
+import { object } from "zod/v4/mini";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
@@ -79,7 +80,28 @@ const loginUser = async (payload: ILoginUser) => {
     config.jwt.access_token_expires_in as SignOptions["expiresIn"],
   );
 
-  return { accessToken };
+  // Generate refresh token
+  const refreshToken = jwtHelpers.generateToken(
+    jwtPayload,
+    config.jwt.refresh_token_secret as Secret,
+    config.jwt.refresh_token_expires_in as SignOptions["expiresIn"],
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+const refreshToken = async (token: string) => {
+  let decodedToken;
+
+  const decoded = jwtHelpers.verifyToken(
+    token,
+    config.jwt.refresh_token_secret as Secret,
+  );
+
+  console.log(decoded);
 };
 
 export const AuthService = {
