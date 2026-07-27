@@ -8,6 +8,7 @@ import { ILoginUser, IRegisterUser } from "./auth.interface";
 import bcrypt from "bcrypt";
 import httpStatus from "http-status-codes";
 import { object } from "zod/v4/mini";
+import { email } from "zod";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
@@ -94,17 +95,44 @@ const loginUser = async (payload: ILoginUser) => {
 };
 
 const refreshToken = async (token: string) => {
-  let decodedToken;
+  let decodedData;
+  try {
+    decodedData = jwtHelpers.verifyToken(
+      token,
+      config.jwt.refresh_token_secret as Secret,
+    );
+  } catch (error) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized");
+  }
 
-  const decoded = jwtHelpers.verifyToken(
-    token,
-    config.jwt.refresh_token_secret as Secret,
+  const userData = await prisma.user.findFirstOrThrow({
+    where: {
+      id: decodedData.userId,
+      email: decodedData.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  // Token information
+  const jwtPayload = {
+    userId: decodedData.userId,
+    email: userData.email,
+    role: userData.role,
+  };
+
+  // Access token generation
+  const accessToken = jwtHelpers.generateToken(
+    jwtPayload,
+    config.jwt.access_token_secret as Secret,
+    config.jwt.access_token_expires_in as SignOptions["expiresIn"],
   );
-
-  console.log(decoded);
+  return {
+    accessToken,
+  };
 };
 
 export const AuthService = {
   registerUser,
   loginUser,
+  refreshToken,
 };
