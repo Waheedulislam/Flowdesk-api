@@ -22,5 +22,10 @@ router.patch(
   validateRequest(WorkspaceValidation.updateMemberRoleValidationSchema),
   WorkspaceController.updateMemberRole,
 );
+router.delete(
+  "/:workspaceId/members/:memberId",
+  auth(),
+  WorkspaceController.removeMember,
+);
 
 export const WorkspaceRoutes = router;

@@ -177,7 +177,7 @@ const updateMemberRole = async (
     );
   }
 
-  // 3. Target member
+  // 3. Target  /এখানে যার role change করব তাকে খুঁজছি।
   const targetMember = await prisma.workspaceMember.findFirst({
     where: {
       id: memberId,
@@ -214,9 +214,89 @@ const updateMemberRole = async (
 
   return updatedMember;
 };
+
+const removeMember = async (
+  workspaceId: string,
+  memberId: string,
+  user: IAuthUser,
+) => {
+  const workspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+  const currentMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!currentMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+  const targetMember = await prisma.workspaceMember.findFirst({
+    where: {
+      id: memberId,
+      workspaceId,
+    },
+  });
+
+  if (!targetMember) {
+    throw new AppError(httpStatus.NOT_FOUND, "Member not found");
+  }
+
+  // MEMBER কাউকে remove করতে পারবে না
+  if (currentMember.role === WorkspaceRole.MEMBER) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to remove members",
+    );
+  }
+
+  // ADMIN শুধুমাত্র MEMBER remove করতে পারবে
+  if (
+    currentMember.role === WorkspaceRole.ADMIN &&
+    targetMember.role !== WorkspaceRole.MEMBER
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, "You can only remove members");
+  }
+
+  // OWNER কে remove করা যাবে না
+  if (targetMember.role === WorkspaceRole.OWNER) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Workspace owner cannot be removed",
+    );
+  }
+  await prisma.workspaceMember.delete({
+    where: {
+      id: targetMember.id,
+    },
+  });
+
+  const deletedMember = await prisma.workspaceMember.delete({
+    where: {
+      id: targetMember.id,
+    },
+  });
+
+  return deletedMember;
+};
+
 export const WorkspaceService = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
   updateMemberRole,
+  removeMember,
 };

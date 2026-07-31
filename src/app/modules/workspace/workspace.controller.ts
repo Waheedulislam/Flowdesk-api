@@ -63,10 +63,27 @@ const updateMemberRole = catchAsync(
     });
   },
 );
+const removeMember = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await WorkspaceService.removeMember(
+      req.params.workspaceId as string,
+      req.params.memberId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Member removed successfully",
+      data: result,
+    });
+  },
+);
 
 export const WorkspaceController = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
   updateMemberRole,
+  removeMember,
 };
