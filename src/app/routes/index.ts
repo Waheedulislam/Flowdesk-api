@@ -20,7 +20,7 @@ const moduleRoutes = [
     route: WorkspaceRoutes,
   },
   {
-    path: "/workspaces",
+    path: "/invitations",
     route: InvitationRoutes,
   },
 ];

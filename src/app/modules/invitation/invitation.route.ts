@@ -7,7 +7,7 @@ import validateRequest from "../../middleware/validateRequest";
 const router = express.Router();
 
 router.post(
-  "/:workspaceId/invitations",
+  "/workspace/:workspaceId",
   auth(),
   validateRequest(InvitationValidation.createInvitationValidationSchema),
   InvitationController.createInvitation,
