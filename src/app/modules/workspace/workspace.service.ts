@@ -140,8 +140,83 @@ const getWorkspaceBySlug = async (slug: string, user: IAuthUser) => {
     role: workspaceMemberRole,
   };
 };
+
+const updateMemberRole = async (
+  workspaceId: string,
+  memberId: string,
+  payload: {
+    role: WorkspaceRole;
+  },
+  user: IAuthUser,
+) => {
+  // 1. Workspace exists
+  const workspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+
+  // 2. Current user must be OWNER
+  const currentMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!currentMember || currentMember.role !== WorkspaceRole.OWNER) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only workspace owner can update member roles",
+    );
+  }
+
+  // 3. Target member
+  const targetMember = await prisma.workspaceMember.findFirst({
+    where: {
+      id: memberId,
+      workspaceId,
+    },
+  });
+
+  if (!targetMember) {
+    throw new AppError(httpStatus.NOT_FOUND, "Member not found");
+  }
+
+  // 4. Owner protection
+  if (targetMember.role === WorkspaceRole.OWNER) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Workspace owner role cannot be changed",
+    );
+  }
+
+  // 5. Same role check
+  if (targetMember.role === payload.role) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Member already has this role");
+  }
+
+  // 6. Update
+  const updatedMember = await prisma.workspaceMember.update({
+    where: {
+      id: memberId,
+    },
+    data: {
+      role: payload.role,
+    },
+  });
+
+  return updatedMember;
+};
 export const WorkspaceService = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
+  updateMemberRole,
 };

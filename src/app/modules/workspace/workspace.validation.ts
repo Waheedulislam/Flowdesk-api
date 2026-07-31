@@ -26,6 +26,13 @@ const createWorkspaceValidationSchema = z.object({
   }),
 });
 
+const updateMemberRoleValidationSchema = z.object({
+  body: z.object({
+    role: z.enum(["ADMIN", "MEMBER"]),
+  }),
+});
+
 export const WorkspaceValidation = {
   createWorkspaceValidationSchema,
+  updateMemberRoleValidationSchema,
 };

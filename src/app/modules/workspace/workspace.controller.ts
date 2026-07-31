@@ -46,8 +46,27 @@ const getWorkspaceBySlug = catchAsync(
   },
 );
 
+const updateMemberRole = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await WorkspaceService.updateMemberRole(
+      req.params.workspaceId as string,
+      req.params.memberId as string,
+      req.body,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Member role updated successfully",
+      data: result,
+    });
+  },
+);
+
 export const WorkspaceController = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
+  updateMemberRole,
 };

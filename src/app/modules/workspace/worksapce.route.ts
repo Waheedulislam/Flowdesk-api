@@ -16,5 +16,11 @@ router.post(
   validateRequest(WorkspaceValidation.createWorkspaceValidationSchema),
   WorkspaceController.createWorkspace,
 );
+router.patch(
+  "/:workspaceId/members/:memberId/role",
+  auth(),
+  validateRequest(WorkspaceValidation.updateMemberRoleValidationSchema),
+  WorkspaceController.updateMemberRole,
+);
 
 export const WorkspaceRoutes = router;
