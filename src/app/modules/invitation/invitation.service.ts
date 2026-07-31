@@ -110,6 +110,78 @@ const createInvitation = async (
   return invitation;
 };
 
+const acceptInvitation = async (token: string, user: IAuthUser) => {
+  const invitation = await prisma.invitation.findUnique({
+    where: {
+      token,
+    },
+  });
+  if (!invitation) {
+    throw new AppError(httpStatus.NOT_FOUND, "Invitation not found");
+  }
+
+  if (invitation.status !== InvitationStatus.PENDING) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invitation is no longer valid");
+  }
+  if (invitation.expiresAt < new Date()) {
+    await prisma.invitation.update({
+      where: {
+        id: invitation.id,
+      },
+      data: {
+        status: InvitationStatus.EXPIRED,
+      },
+    });
+
+    throw new AppError(httpStatus.BAD_REQUEST, "Invitation has expired");
+  }
+
+  if (user!.email !== invitation.email) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "This invitation is not for your account",
+    );
+  }
+
+  const updatedInvitation = await prisma.$transaction(async (tx) => {
+    const existingMember = await tx.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId: invitation.workspaceId,
+          userId: user!.userId,
+        },
+      },
+    });
+
+    if (existingMember) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "You are already a workspace member",
+      );
+    }
+
+    await tx.workspaceMember.create({
+      data: {
+        workspaceId: invitation.workspaceId,
+        userId: user!.userId,
+        role: invitation.role,
+      },
+    });
+
+    return await tx.invitation.update({
+      where: {
+        id: invitation.id,
+      },
+      data: {
+        status: InvitationStatus.ACCEPTED,
+      },
+    });
+  });
+
+  return updatedInvitation;
+};
+
 export const InvitationService = {
   createInvitation,
+  acceptInvitation,
 };

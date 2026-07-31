@@ -27,7 +27,23 @@ const createInvitation = catchAsync(
     });
   },
 );
+const acceptInvitation = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await InvitationService.acceptInvitation(
+      req.params.token as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Invitation accepted successfully",
+      data: result,
+    });
+  },
+);
 
 export const InvitationController = {
   createInvitation,
+  acceptInvitation,
 };
