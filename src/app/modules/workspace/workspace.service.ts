@@ -294,10 +294,53 @@ const removeMember = async (
   return deletedMember;
 };
 
+const leaveWorkspace = async (workspaceId: string, user: IAuthUser) => {
+  const workspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+
+  const currentMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!currentMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  if (currentMember.role === WorkspaceRole.OWNER) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Workspace owner cannot leave the workspace",
+    );
+  }
+  await prisma.workspaceMember.delete({
+    where: {
+      id: currentMember.id,
+    },
+  });
+
+  return null;
+};
+
 export const WorkspaceService = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
   updateMemberRole,
   removeMember,
+  leaveWorkspace,
 };

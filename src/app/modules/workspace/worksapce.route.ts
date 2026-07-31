@@ -27,5 +27,6 @@ router.delete(
   auth(),
   WorkspaceController.removeMember,
 );
+router.post("/:workspaceId/leave", auth(), WorkspaceController.leaveWorkspace);
 
 export const WorkspaceRoutes = router;

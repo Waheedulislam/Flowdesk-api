@@ -79,6 +79,21 @@ const removeMember = catchAsync(
     });
   },
 );
+const leaveWorkspace = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await WorkspaceService.leaveWorkspace(
+      req.params.workspaceId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "You left the workspace successfully",
+      data: result,
+    });
+  },
+);
 
 export const WorkspaceController = {
   createWorkspace,
@@ -86,4 +101,5 @@ export const WorkspaceController = {
   getWorkspaceBySlug,
   updateMemberRole,
   removeMember,
+  leaveWorkspace,
 };
