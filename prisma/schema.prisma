@@ -110,8 +110,9 @@ model Invitation {
   status      InvitationStatus @default(PENDING)
   expiresAt   DateTime
   createdAt   DateTime         @default(now())
-  user        User?            @relation(fields: [userId], references: [id])
   userId      String?
+
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model Task {
