@@ -3,6 +3,8 @@ import { ICreateWorkspace } from "./workspace.interface";
 import { IAuthUser } from "../../interface/common";
 import prisma from "../../../config/prisma";
 import { WorkspaceRole } from "../../../generated/prisma";
+import AppError from "../../Errors/AppError";
+import httpStatus from "http-status-codes";
 
 const createWorkspace = async (payload: ICreateWorkspace, user: IAuthUser) => {
   const baseSlug = slugify(payload.name, {
@@ -97,7 +99,49 @@ const getMyWorkspaces = async (user: IAuthUser) => {
   });
   return formattedWorkspaces;
 };
+
+const getWorkspaceBySlug = async (slug: string, user: IAuthUser) => {
+  const workspace = await prisma.workspace.findFirst({
+    where: {
+      slug,
+      workspaceMembers: {
+        some: {
+          userId: user!.userId,
+        },
+      },
+    },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+      workspaceMembers: {
+        where: {
+          userId: user?.userId,
+        },
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+  const { workspaceMembers, ...workspaceData } = workspace;
+  const workspaceMemberRole = workspaceMembers[0]?.role;
+
+  return {
+    ...workspaceData,
+    role: workspaceMemberRole,
+  };
+};
 export const WorkspaceService = {
   createWorkspace,
   getMyWorkspaces,
+  getWorkspaceBySlug,
 };

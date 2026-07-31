@@ -6,12 +6,15 @@ import validateRequest from "../../middleware/validateRequest";
 
 const router = express.Router();
 
+router.get("/", auth(), WorkspaceController.getMyWorkspaces);
+
+router.get("/:slug", auth(), WorkspaceController.getWorkspaceBySlug);
+
 router.post(
   "/create-workspaces",
   auth(),
   validateRequest(WorkspaceValidation.createWorkspaceValidationSchema),
   WorkspaceController.createWorkspace,
 );
-router.get("/", auth(), WorkspaceController.getMyWorkspaces);
 
 export const WorkspaceRoutes = router;

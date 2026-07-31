@@ -31,8 +31,23 @@ const getMyWorkspaces = catchAsync(
     });
   },
 );
+const getWorkspaceBySlug = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const slug = req.params.slug as string;
+
+    const result = await WorkspaceService.getWorkspaceBySlug(slug, req.user!);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Workspace retrieved successfully",
+      data: result,
+    });
+  },
+);
 
 export const WorkspaceController = {
   createWorkspace,
   getMyWorkspaces,
+  getWorkspaceBySlug,
 };
