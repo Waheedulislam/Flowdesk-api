@@ -42,15 +42,16 @@ model User {
 }
 
 model Workspace {
-  id               String            @id @default(uuid())
-  name             String
-  slug             String            @unique
-  logo             String?
-  status           WorkspaceStatus   @default(ACTIVE)
-  description      String?
-  ownerId          String
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id          String          @id @default(uuid())
+  name        String
+  slug        String          @unique
+  logo        String?
+  status      WorkspaceStatus @default(ACTIVE)
+  description String?
+  ownerId     String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
   owner            User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   workspaceMembers WorkspaceMember[]
   invitations      Invitation[]
@@ -63,8 +64,9 @@ model WorkspaceMember {
   userId      String
   role        WorkspaceRole @default(MEMBER)
   joinedAt    DateTime      @default(now())
-  workspace   Workspace     @relation(fields: [workspaceId], references: [id])
-  user        User          @relation(fields: [userId], references: [id])
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 
   @@unique([workspaceId, userId])
 }
