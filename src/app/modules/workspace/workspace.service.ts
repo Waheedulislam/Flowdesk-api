@@ -220,6 +220,7 @@ const removeMember = async (
   memberId: string,
   user: IAuthUser,
 ) => {
+  // Check workspace
   const workspace = await prisma.workspace.findUnique({
     where: {
       id: workspaceId,
@@ -229,6 +230,8 @@ const removeMember = async (
   if (!workspace) {
     throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
   }
+
+  // Check current user
   const currentMember = await prisma.workspaceMember.findUnique({
     where: {
       workspaceId_userId: {
@@ -244,6 +247,8 @@ const removeMember = async (
       "You are not a member of this workspace",
     );
   }
+
+  // Check target member
   const targetMember = await prisma.workspaceMember.findFirst({
     where: {
       id: memberId,
@@ -255,7 +260,7 @@ const removeMember = async (
     throw new AppError(httpStatus.NOT_FOUND, "Member not found");
   }
 
-  // MEMBER কাউকে remove করতে পারবে না
+  // MEMBER cannot remove anyone
   if (currentMember.role === WorkspaceRole.MEMBER) {
     throw new AppError(
       httpStatus.FORBIDDEN,
@@ -263,7 +268,7 @@ const removeMember = async (
     );
   }
 
-  // ADMIN শুধুমাত্র MEMBER remove করতে পারবে
+  // ADMIN can remove only MEMBER
   if (
     currentMember.role === WorkspaceRole.ADMIN &&
     targetMember.role !== WorkspaceRole.MEMBER
@@ -271,19 +276,15 @@ const removeMember = async (
     throw new AppError(httpStatus.FORBIDDEN, "You can only remove members");
   }
 
-  // OWNER কে remove করা যাবে না
+  // OWNER cannot be removed
   if (targetMember.role === WorkspaceRole.OWNER) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Workspace owner cannot be removed",
     );
   }
-  await prisma.workspaceMember.delete({
-    where: {
-      id: targetMember.id,
-    },
-  });
 
+  // Delete member
   const deletedMember = await prisma.workspaceMember.delete({
     where: {
       id: targetMember.id,
