@@ -13,6 +13,10 @@ router.post(
   InvitationController.createInvitation,
 );
 
-router.post("/:token/accept", auth(), InvitationController.acceptInvitation);
+router.post(
+  "/workspace/:token/accept",
+  auth(),
+  InvitationController.acceptInvitation,
+);
 
 export const InvitationRoutes = router;
