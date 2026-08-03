@@ -1,4 +1,5 @@
 import prisma from "../../../config/prisma";
+import { WorkspaceRole } from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
 import { ICreateProject } from "./project.interface";
@@ -126,9 +127,106 @@ const getSingleProject = async (projectId: string, user: IAuthUser) => {
 
   return project;
 };
+const updateProject = async (
+  projectId: string,
+  payload: Partial<ICreateProject>,
+  user: IAuthUser,
+) => {
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+  });
+
+  if (!project) {
+    throw new AppError(httpStatus.NOT_FOUND, "Project not found");
+  }
+
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  if (
+    workspaceMember.role !== WorkspaceRole.OWNER &&
+    workspaceMember.role !== WorkspaceRole.ADMIN
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only workspace owner or admin can update projects",
+    );
+  }
+
+  const updatedProject = await prisma.project.update({
+    where: {
+      id: projectId,
+    },
+    data: payload,
+  });
+
+  return updatedProject;
+};
+const deleteProject = async (projectId: string, user: IAuthUser) => {
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+  });
+
+  if (!project) {
+    throw new AppError(httpStatus.NOT_FOUND, "Project not found");
+  }
+
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  if (
+    workspaceMember.role !== WorkspaceRole.OWNER &&
+    workspaceMember.role !== WorkspaceRole.ADMIN
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only workspace owner or admin can delete projects",
+    );
+  }
+
+  await prisma.project.delete({
+    where: {
+      id: projectId,
+    },
+  });
+
+  return null;
+};
 
 export const ProjectService = {
   createProject,
   getProjects,
   getSingleProject,
+  updateProject,
+  deleteProject,
 };

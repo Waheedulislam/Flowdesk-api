@@ -54,9 +54,42 @@ const getSingleProject = catchAsync(
     });
   },
 );
+const updateProject = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await ProjectService.updateProject(
+      req.params.projectId as string,
+      req.body,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Project updated successfully",
+      data: result,
+    });
+  },
+);
+const deleteProject = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    await ProjectService.deleteProject(
+      req.params.projectId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Project deleted successfully",
+      data: null,
+    });
+  },
+);
 
 export const ProjectController = {
   createProject,
   getProjects,
   getSingleProject,
+  updateProject,
+  deleteProject,
 };

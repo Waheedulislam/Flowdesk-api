@@ -19,4 +19,15 @@ router.get("/workspace/:workspaceId", auth(), ProjectController.getProjects);
 // get single project
 router.get("/:projectId", auth(), ProjectController.getSingleProject);
 
+// update project
+router.patch(
+  "/:projectId",
+  auth(),
+  validateRequest(projectValidation.updateProjectValidationSchema),
+  ProjectController.updateProject,
+);
+
+// delete project
+router.delete("/:projectId", auth(), ProjectController.deleteProject);
+
 export const ProjectRoutes = router;

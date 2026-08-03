@@ -230,6 +230,8 @@ enum InvitationStatus {
 enum ProjectStatus {
   PLANNING
   ACTIVE
+  IN_PROGRESS
+  ON_HOLD
   COMPLETED
   ARCHIVED
 }
