@@ -39,7 +39,24 @@ const getProjects = catchAsync(
   },
 );
 
+const getSingleProject = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await ProjectService.getSingleProject(
+      req.params.projectId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Project retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 export const ProjectController = {
   createProject,
   getProjects,
+  getSingleProject,
 };

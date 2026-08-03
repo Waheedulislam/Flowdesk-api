@@ -87,7 +87,48 @@ const getProjects = async (workspaceId: string, user: IAuthUser) => {
   return projects;
 };
 
+const getSingleProject = async (projectId: string, user: IAuthUser) => {
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    throw new AppError(httpStatus.NOT_FOUND, "Project not found");
+  }
+
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  return project;
+};
+
 export const ProjectService = {
   createProject,
   getProjects,
+  getSingleProject,
 };
