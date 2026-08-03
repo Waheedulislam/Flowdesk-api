@@ -49,6 +49,45 @@ const createProject = async (
   return project;
 };
 
+const getProjects = async (workspaceId: string, user: IAuthUser) => {
+  const workspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+  console.log("workspaceMember:", workspaceMember);
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+  const projects = await prisma.project.findMany({
+    where: {
+      workspaceId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return projects;
+};
+
 export const ProjectService = {
   createProject,
+  getProjects,
 };

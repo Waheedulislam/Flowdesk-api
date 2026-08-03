@@ -12,5 +12,11 @@ router.post(
   validateRequest(projectValidation.createProjectValidationSchema),
   ProjectController.createProject,
 );
+router.get(
+  "/workspace/:workspaceId",
+  auth(),
+  ProjectController.getProjects,
+);
+
 
 export const ProjectRoutes = router;
