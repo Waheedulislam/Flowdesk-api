@@ -81,6 +81,124 @@ const createTask = async (
 
   return task;
 };
+
+const getTasks = async (projectId: string, user: IAuthUser) => {
+  // 1. Check Project Exists
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+  });
+
+  if (!project) {
+    throw new AppError(httpStatus.NOT_FOUND, "Project not found");
+  }
+
+  // 2. Check Workspace Member
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Get Tasks
+  const tasks = await prisma.task.findMany({
+    where: {
+      projectId,
+    },
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+      assignee: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+    },
+    orderBy: {
+      order: "asc",
+    },
+  });
+
+  return tasks;
+};
+const getSingleTask = async (taskId: string, user: IAuthUser) => {
+  // 1. Check Task Exists
+  const task = await prisma.task.findUnique({
+    where: {
+      id: taskId,
+    },
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+      assignee: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+      project: {
+        select: {
+          id: true,
+          workspaceId: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!task) {
+    throw new AppError(httpStatus.NOT_FOUND, "Task not found");
+  }
+
+  // 2. Check Workspace Member
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: task.project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  return task;
+};
 export const TaskService = {
   createTask,
+  getTasks,
+  getSingleTask,
 };

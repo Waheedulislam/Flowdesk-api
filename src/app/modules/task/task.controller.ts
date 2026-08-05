@@ -21,7 +21,39 @@ const createTask = catchAsync(
     });
   },
 );
+const getTasks = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await TaskService.getTasks(
+      req.params.projectId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Tasks retrieved successfully",
+      data: result,
+    });
+  },
+);
+const getSingleTask = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await TaskService.getSingleTask(
+      req.params.taskId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Task retrieved successfully",
+      data: result,
+    });
+  },
+);
 
 export const TaskController = {
   createTask,
+  getTasks,
+  getSingleTask,
 };

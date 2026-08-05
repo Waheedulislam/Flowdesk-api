@@ -12,5 +12,10 @@ router.post(
   validateRequest(TaskValidation.createTaskValidationSchema),
   TaskController.createTask,
 );
+// get all tasks
+router.get("/project/:projectId", auth(), TaskController.getTasks);
+
+// get single task
+router.get("/:taskId", auth(), TaskController.getSingleTask);
 
 export const TaskRoutes = router;
