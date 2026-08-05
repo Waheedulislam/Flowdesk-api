@@ -67,10 +67,23 @@ const updateTask = catchAsync(
     });
   },
 );
+const deleteTask = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    await TaskService.deleteTask(req.params.taskId as string, req.user!);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Task deleted successfully",
+      data: null,
+    });
+  },
+);
 
 export const TaskController = {
   createTask,
   getTasks,
   getSingleTask,
   updateTask,
+  deleteTask,
 };

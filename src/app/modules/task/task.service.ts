@@ -280,9 +280,62 @@ const updateTask = async (
 
   return updatedTask;
 };
+const deleteTask = async (taskId: string, user: IAuthUser) => {
+  // 1. Check Task Exists
+  const task = await prisma.task.findUnique({
+    where: {
+      id: taskId,
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  if (!task) {
+    throw new AppError(httpStatus.NOT_FOUND, "Task not found");
+  }
+
+  // 2. Check Workspace Member
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: task.project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Permission Check
+  if (
+    workspaceMember.role !== WorkspaceRole.OWNER &&
+    workspaceMember.role !== WorkspaceRole.ADMIN
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only workspace owner or admin can delete tasks",
+    );
+  }
+
+  // 4. Delete Task
+  await prisma.task.delete({
+    where: {
+      id: taskId,
+    },
+  });
+
+  return null;
+};
 export const TaskService = {
   createTask,
   getTasks,
   getSingleTask,
   updateTask,
+  deleteTask,
 };
