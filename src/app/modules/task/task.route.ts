@@ -18,4 +18,12 @@ router.get("/project/:projectId", auth(), TaskController.getTasks);
 // get single task
 router.get("/:taskId", auth(), TaskController.getSingleTask);
 
+// update
+router.patch(
+  "/:taskId",
+  auth(),
+  validateRequest(TaskValidation.updateTaskValidationSchema),
+  TaskController.updateTask,
+);
+
 export const TaskRoutes = router;
