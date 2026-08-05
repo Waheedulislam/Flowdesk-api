@@ -3,6 +3,7 @@ import { auth } from "../../middleware/auth";
 import validateRequest from "../../middleware/validateRequest";
 import { TaskController } from "./task.controller";
 import { TaskValidation } from "./task.validation";
+import { CommentRoutes } from "./comment/comment.route";
 
 const router = express.Router();
 
@@ -26,5 +27,8 @@ router.patch(
   TaskController.updateTask,
 );
 router.delete("/:taskId", auth(), TaskController.deleteTask);
+
+// task comment details
+router.use("/", CommentRoutes);
 
 export const TaskRoutes = router;
