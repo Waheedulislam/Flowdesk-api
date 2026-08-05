@@ -3,7 +3,10 @@ import prisma from "../../../../config/prisma";
 import AppError from "../../../Errors/AppError";
 import { IAuthUser } from "../../../interface/common";
 import { ProjectRole, WorkspaceRole } from "../../../../generated/prisma";
-import { IAddProjectMember } from "./project-member.interface";
+import {
+  IAddProjectMember,
+  IUpdateProjectMember,
+} from "./project-member.interface";
 
 const addProjectMember = async (
   projectId: string,
@@ -122,7 +125,7 @@ const getProjectMembers = async (projectId: string, user: IAuthUser) => {
     where: {
       workspaceId_userId: {
         workspaceId: project.workspaceId,
-        userId: user.userId,
+        userId: user!.userId,
       },
     },
   });
@@ -157,7 +160,182 @@ const getProjectMembers = async (projectId: string, user: IAuthUser) => {
   return members;
 };
 
+const updateProjectMemberRole = async (
+  memberId: string,
+  payload: IUpdateProjectMember,
+  user: IAuthUser,
+) => {
+  // 1. Check Project Member Exists
+  const projectMember = await prisma.projectMember.findUnique({
+    where: {
+      id: memberId,
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  if (!projectMember) {
+    throw new AppError(httpStatus.NOT_FOUND, "Project member not found");
+  }
+
+  // 2. Check Login User Workspace Member
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: projectMember.project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Workspace Owner -> Allow Everything
+  if (workspaceMember.role === WorkspaceRole.OWNER) {
+    return await prisma.projectMember.update({
+      where: {
+        id: memberId,
+      },
+      data: {
+        role: payload.role,
+      },
+    });
+  }
+
+  // 4. Login User Project Member
+  const loginProjectMember = await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: {
+        projectId: projectMember.projectId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!loginProjectMember) {
+    throw new AppError(httpStatus.FORBIDDEN, "You are not a project member");
+  }
+
+  // 5. Only Project Admin Can Continue
+  if (loginProjectMember.role !== ProjectRole.PROJECT_ADMIN) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to update project member roles",
+    );
+  }
+
+  // 6. Project Admin Can't Update Another Project Admin
+  if (projectMember.role === ProjectRole.PROJECT_ADMIN) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Project admin cannot update another project admin",
+    );
+  }
+
+  // 7. Update Role
+  const updatedMember = await prisma.projectMember.update({
+    where: {
+      id: memberId,
+    },
+    data: {
+      role: payload.role,
+    },
+  });
+
+  return updatedMember;
+};
+const removeProjectMember = async (memberId: string, user: IAuthUser) => {
+  // 1. Check Project Member Exists
+  const projectMember = await prisma.projectMember.findUnique({
+    where: {
+      id: memberId,
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  if (!projectMember) {
+    throw new AppError(httpStatus.NOT_FOUND, "Project member not found");
+  }
+
+  // 2. Check Workspace Member
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: projectMember.project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Workspace Owner -> Can Remove Anyone
+  if (workspaceMember.role === WorkspaceRole.OWNER) {
+    await prisma.projectMember.delete({
+      where: {
+        id: memberId,
+      },
+    });
+
+    return null;
+  }
+
+  // 4. Login User Project Member
+  const loginProjectMember = await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: {
+        projectId: projectMember.projectId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!loginProjectMember) {
+    throw new AppError(httpStatus.FORBIDDEN, "You are not a project member");
+  }
+
+  // 5. Only Project Admin
+  if (loginProjectMember.role !== ProjectRole.PROJECT_ADMIN) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to remove project members",
+    );
+  }
+
+  // 6. Project Admin Can't Remove Another Project Admin
+  if (projectMember.role === ProjectRole.PROJECT_ADMIN) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Project admin cannot remove another project admin",
+    );
+  }
+
+  // 7. Remove Member
+  await prisma.projectMember.delete({
+    where: {
+      id: memberId,
+    },
+  });
+
+  return null;
+};
+
 export const ProjectMemberService = {
   addProjectMember,
   getProjectMembers,
+  updateProjectMemberRole,
+  removeProjectMember,
 };

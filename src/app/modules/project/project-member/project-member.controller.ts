@@ -45,7 +45,7 @@ const getProjectMembers = catchAsync(
 const updateProjectMemberRole = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const result = await ProjectMemberService.updateProjectMemberRole(
-      req.params.memberId,
+      req.params.memberId as string,
       req.body,
       req.user!,
     );
@@ -63,7 +63,7 @@ const updateProjectMemberRole = catchAsync(
 const removeProjectMember = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     await ProjectMemberService.removeProjectMember(
-      req.params.memberId,
+      req.params.memberId as string,
       req.user!,
     );
 
