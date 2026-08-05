@@ -18,7 +18,7 @@ router.get("/project/:projectId", auth(), TaskController.getTasks);
 // get single task
 router.get("/:taskId", auth(), TaskController.getSingleTask);
 
-// update
+// update task
 router.patch(
   "/:taskId",
   auth(),
