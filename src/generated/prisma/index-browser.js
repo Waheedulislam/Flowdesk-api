@@ -167,7 +167,8 @@ exports.Prisma.ProjectScalarFieldEnum = {
   status: 'status',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userId: 'userId'
 };
 
 exports.Prisma.ProjectMemberScalarFieldEnum = {
@@ -203,8 +204,7 @@ exports.Prisma.TaskScalarFieldEnum = {
   dueDate: 'dueDate',
   order: 'order',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId'
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.TaskCommentScalarFieldEnum = {
@@ -308,6 +308,8 @@ exports.WorkspaceRole = exports.$Enums.WorkspaceRole = {
 exports.ProjectStatus = exports.$Enums.ProjectStatus = {
   PLANNING: 'PLANNING',
   ACTIVE: 'ACTIVE',
+  IN_PROGRESS: 'IN_PROGRESS',
+  ON_HOLD: 'ON_HOLD',
   COMPLETED: 'COMPLETED',
   ARCHIVED: 'ARCHIVED'
 };
