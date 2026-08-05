@@ -1,5 +1,5 @@
 import prisma from "../../../config/prisma";
-import { WorkspaceRole } from "../../../generated/prisma";
+import { ProjectRole, WorkspaceRole } from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
 import { ICreateProject } from "./project.interface";
@@ -19,8 +19,6 @@ const createProject = async (
   if (!workspace) {
     throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
   }
-  console.log("workspaceId:", workspaceId);
-  console.log("user:", user);
 
   const workspaceMember = await prisma.workspaceMember.findUnique({
     where: {
@@ -38,13 +36,27 @@ const createProject = async (
     );
   }
 
-  const project = await prisma.project.create({
-    data: {
-      workspaceId,
-      name: payload.name,
-      description: payload.description,
-      createdBy: user!.userId,
-    },
+  const project = await prisma.$transaction(async (tx) => {
+    // Create Project
+    const newProject = await tx.project.create({
+      data: {
+        workspaceId,
+        name: payload.name,
+        description: payload.description,
+        createdBy: user!.userId,
+      },
+    });
+
+    // Automatically add creator as Project Admin
+    await tx.projectMember.create({
+      data: {
+        projectId: newProject.id,
+        userId: user!.userId,
+        role: ProjectRole.PROJECT_ADMIN,
+      },
+    });
+
+    return newProject;
   });
 
   return project;
