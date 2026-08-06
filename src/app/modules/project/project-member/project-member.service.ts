@@ -2,11 +2,17 @@ import httpStatus from "http-status-codes";
 import prisma from "../../../../config/prisma";
 import AppError from "../../../Errors/AppError";
 import { IAuthUser } from "../../../interface/common";
-import { ProjectRole, WorkspaceRole } from "../../../../generated/prisma";
+
+import {
+  NotificationType,
+  ProjectRole,
+  WorkspaceRole,
+} from "../../../../generated/prisma";
 import {
   IAddProjectMember,
   IUpdateProjectMember,
 } from "./project-member.interface";
+import { createNotification } from "../../notification/notification.utils";
 
 const addProjectMember = async (
   projectId: string,
@@ -103,6 +109,15 @@ const addProjectMember = async (
         },
       },
     },
+  });
+
+  // Create Notification
+  await createNotification({
+    userId: payload.userId,
+    title: "Added to Project",
+    message: `You have been added to "${project.name}".`,
+    type: NotificationType.PROJECT_CREATED,
+    link: `/projects/${project.id}`,
   });
 
   return projectMember;
@@ -248,6 +263,15 @@ const updateProjectMemberRole = async (
     },
   });
 
+  // Update Notification
+  await createNotification({
+    userId: updatedMember.userId,
+    title: "Project Role Updated",
+    message: `Your role has been changed to ${updatedMember.role}.`,
+    type: NotificationType.PROJECT_UPDATED,
+    link: `/projects/${updatedMember.projectId}`,
+  });
+
   return updatedMember;
 };
 const removeProjectMember = async (memberId: string, user: IAuthUser) => {
@@ -264,6 +288,11 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
   if (!projectMember) {
     throw new AppError(httpStatus.NOT_FOUND, "Project member not found");
   }
+
+  // Save data before delete
+  const removedUserId = projectMember.userId;
+  const projectName = projectMember.project.name;
+  const projectId = projectMember.projectId;
 
   // 2. Check Workspace Member
   const workspaceMember = await prisma.workspaceMember.findUnique({
@@ -290,6 +319,14 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
       },
     });
 
+    await createNotification({
+      userId: removedUserId,
+      title: "Removed from Project",
+      message: `You have been removed from "${projectName}".`,
+      type: NotificationType.PROJECT_MEMBER_REMOVED,
+      link: `/projects/${projectId}`,
+    });
+
     return null;
   }
 
@@ -297,7 +334,7 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
   const loginProjectMember = await prisma.projectMember.findUnique({
     where: {
       projectId_userId: {
-        projectId: projectMember.projectId,
+        projectId,
         userId: user!.userId,
       },
     },
@@ -328,6 +365,15 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
     where: {
       id: memberId,
     },
+  });
+
+  // 8. Create Notification
+  await createNotification({
+    userId: removedUserId,
+    title: "Removed from Project",
+    message: `You have been removed from "${projectName}".`,
+    type: NotificationType.PROJECT_MEMBER_REMOVED,
+    link: `/projects/${projectId}`,
   });
 
   return null;
