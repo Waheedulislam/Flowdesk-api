@@ -288,6 +288,7 @@ enum NotificationType {
   PROJECT_CREATED
   PROJECT_UPDATED
   PROJECT_MEMBER_REMOVED
+  PROJECT_ROLE_UPDATED
 }
 
 enum ActivityAction {

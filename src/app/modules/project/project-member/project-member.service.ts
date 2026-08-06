@@ -211,49 +211,37 @@ const updateProjectMemberRole = async (
     );
   }
 
-  // 3. Workspace Owner -> Allow Everything
-  if (workspaceMember.role === WorkspaceRole.OWNER) {
-    return await prisma.projectMember.update({
+  // 3. If not Owner, then check Project Member Permission
+  if (workspaceMember.role !== WorkspaceRole.OWNER) {
+    const loginProjectMember = await prisma.projectMember.findUnique({
       where: {
-        id: memberId,
-      },
-      data: {
-        role: payload.role,
+        projectId_userId: {
+          projectId: projectMember.projectId,
+          userId: user!.userId,
+        },
       },
     });
+
+    if (!loginProjectMember) {
+      throw new AppError(httpStatus.FORBIDDEN, "You are not a project member");
+    }
+
+    if (loginProjectMember.role !== ProjectRole.PROJECT_ADMIN) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You are not authorized to update project member roles",
+      );
+    }
+
+    if (projectMember.role === ProjectRole.PROJECT_ADMIN) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Project admin cannot update another project admin",
+      );
+    }
   }
 
-  // 4. Login User Project Member
-  const loginProjectMember = await prisma.projectMember.findUnique({
-    where: {
-      projectId_userId: {
-        projectId: projectMember.projectId,
-        userId: user!.userId,
-      },
-    },
-  });
-
-  if (!loginProjectMember) {
-    throw new AppError(httpStatus.FORBIDDEN, "You are not a project member");
-  }
-
-  // 5. Only Project Admin Can Continue
-  if (loginProjectMember.role !== ProjectRole.PROJECT_ADMIN) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      "You are not authorized to update project member roles",
-    );
-  }
-
-  // 6. Project Admin Can't Update Another Project Admin
-  if (projectMember.role === ProjectRole.PROJECT_ADMIN) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      "Project admin cannot update another project admin",
-    );
-  }
-
-  // 7. Update Role
+  // 4. Update Role
   const updatedMember = await prisma.projectMember.update({
     where: {
       id: memberId,
@@ -263,12 +251,12 @@ const updateProjectMemberRole = async (
     },
   });
 
-  // Update Notification
+  // 5. Create Notification
   await createNotification({
     userId: updatedMember.userId,
     title: "Project Role Updated",
     message: `Your role has been changed to ${updatedMember.role}.`,
-    type: NotificationType.PROJECT_UPDATED,
+    type: NotificationType.PROJECT_ROLE_UPDATED,
     link: `/projects/${updatedMember.projectId}`,
   });
 
