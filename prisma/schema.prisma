@@ -296,14 +296,21 @@ enum ActivityAction {
   CREATE
   UPDATE
   DELETE
+
   LOGIN
   LOGOUT
   INVITE
   ASSIGNED
   COMMENT
+
   ADD_MEMBER
   UPDATE_ROLE
   REMOVE_MEMBER
+
+  ASSIGN_TASK
+  CHANGE_STATUS
+
+  ACCEPT_INVITATION
 }
 
 enum ActivityEntity {
@@ -312,4 +319,5 @@ enum ActivityEntity {
   PROJECT_MEMBER
   TASK
   COMMENT
+  INVITATION
 }

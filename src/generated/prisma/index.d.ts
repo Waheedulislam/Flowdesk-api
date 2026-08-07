@@ -189,7 +189,13 @@ export const ActivityAction: {
   LOGOUT: 'LOGOUT',
   INVITE: 'INVITE',
   ASSIGNED: 'ASSIGNED',
-  COMMENT: 'COMMENT'
+  COMMENT: 'COMMENT',
+  ADD_MEMBER: 'ADD_MEMBER',
+  UPDATE_ROLE: 'UPDATE_ROLE',
+  REMOVE_MEMBER: 'REMOVE_MEMBER',
+  ASSIGN_TASK: 'ASSIGN_TASK',
+  CHANGE_STATUS: 'CHANGE_STATUS',
+  ACCEPT_INVITATION: 'ACCEPT_INVITATION'
 };
 
 export type ActivityAction = (typeof ActivityAction)[keyof typeof ActivityAction]
@@ -198,9 +204,10 @@ export type ActivityAction = (typeof ActivityAction)[keyof typeof ActivityAction
 export const ActivityEntity: {
   WORKSPACE: 'WORKSPACE',
   PROJECT: 'PROJECT',
+  PROJECT_MEMBER: 'PROJECT_MEMBER',
   TASK: 'TASK',
   COMMENT: 'COMMENT',
-  FILE: 'FILE'
+  INVITATION: 'INVITATION'
 };
 
 export type ActivityEntity = (typeof ActivityEntity)[keyof typeof ActivityEntity]
