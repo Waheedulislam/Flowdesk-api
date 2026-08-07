@@ -1,11 +1,14 @@
 import prisma from "../../../config/prisma";
 import {
+  ActivityAction,
+  ActivityEntity,
   NotificationType,
   TaskStatus,
   WorkspaceRole,
 } from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
+import { createActivityLog } from "../activity-log/activity-log.utils";
 import { createNotification } from "../notification/notification.utils";
 import { ICreateTask } from "./task.interface";
 import httpStatus from "http-status-codes";
@@ -94,6 +97,20 @@ const createTask = async (
       link: `/projects/${projectId}/tasks/${task.id}`,
     });
   }
+  // 7. Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.CREATE,
+    entity: ActivityEntity.TASK,
+    entityId: task.id,
+    metadata: {
+      projectId,
+      taskTitle: task.title,
+      assignedTo: task.assignedTo,
+      priority: task.priority,
+      status: task.status,
+    },
+  });
 
   return task;
 };
@@ -282,6 +299,10 @@ const updateTask = async (
     }
   }
 
+  // sava old data after update
+  const oldStatus = task.status;
+  const oldAssignee = task.assignedTo;
+
   // 5. Update Task
   const updatedTask = await prisma.task.update({
     where: {
@@ -313,6 +334,23 @@ const updateTask = async (
       link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
     });
   }
+  // 8. Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: payload.status
+      ? ActivityAction.CHANGE_STATUS
+      : ActivityAction.UPDATE,
+    entity: ActivityEntity.TASK,
+    entityId: updatedTask.id,
+    metadata: {
+      projectId: updatedTask.projectId,
+      taskTitle: updatedTask.title,
+      oldStatus,
+      newStatus: updatedTask.status,
+      oldAssignee,
+      newAssignee: updatedTask.assignedTo,
+    },
+  });
 
   return updatedTask;
 };
@@ -380,6 +418,19 @@ const deleteTask = async (taskId: string, user: IAuthUser) => {
       link: `/projects/${projectId}`,
     });
   }
+
+  // 6. Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.DELETE,
+    entity: ActivityEntity.TASK,
+    entityId: taskId,
+    metadata: {
+      projectId,
+      taskTitle,
+      assignedTo: assignedUserId,
+    },
+  });
   return null;
 };
 
