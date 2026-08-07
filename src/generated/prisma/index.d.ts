@@ -2206,12 +2206,14 @@ export namespace Prisma {
     workspaceMembers: number
     invitations: number
     projects: number
+    activityLogs: number
   }
 
   export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workspaceMembers?: boolean | WorkspaceCountOutputTypeCountWorkspaceMembersArgs
     invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
     projects?: boolean | WorkspaceCountOutputTypeCountProjectsArgs
+    activityLogs?: boolean | WorkspaceCountOutputTypeCountActivityLogsArgs
   }
 
   // Custom InputTypes
@@ -2244,6 +2246,13 @@ export namespace Prisma {
    */
   export type WorkspaceCountOutputTypeCountProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProjectWhereInput
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountActivityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActivityLogWhereInput
   }
 
 
@@ -4113,6 +4122,7 @@ export namespace Prisma {
     workspaceMembers?: boolean | Workspace$workspaceMembersArgs<ExtArgs>
     invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
     projects?: boolean | Workspace$projectsArgs<ExtArgs>
+    activityLogs?: boolean | Workspace$activityLogsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
 
@@ -4160,6 +4170,7 @@ export namespace Prisma {
     workspaceMembers?: boolean | Workspace$workspaceMembersArgs<ExtArgs>
     invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
     projects?: boolean | Workspace$projectsArgs<ExtArgs>
+    activityLogs?: boolean | Workspace$activityLogsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4176,6 +4187,7 @@ export namespace Prisma {
       workspaceMembers: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
       invitations: Prisma.$InvitationPayload<ExtArgs>[]
       projects: Prisma.$ProjectPayload<ExtArgs>[]
+      activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4585,6 +4597,7 @@ export namespace Prisma {
     workspaceMembers<T extends Workspace$workspaceMembersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$workspaceMembersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invitations<T extends Workspace$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projects<T extends Workspace$projectsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activityLogs<T extends Workspace$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5093,6 +5106,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProjectScalarFieldEnum | ProjectScalarFieldEnum[]
+  }
+
+  /**
+   * Workspace.activityLogs
+   */
+  export type Workspace$activityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    where?: ActivityLogWhereInput
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    cursor?: ActivityLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
   }
 
   /**
@@ -13107,6 +13144,7 @@ export namespace Prisma {
   export type ActivityLogMinAggregateOutputType = {
     id: string | null
     userId: string | null
+    workspaceId: string | null
     action: $Enums.ActivityAction | null
     entity: $Enums.ActivityEntity | null
     entityId: string | null
@@ -13116,6 +13154,7 @@ export namespace Prisma {
   export type ActivityLogMaxAggregateOutputType = {
     id: string | null
     userId: string | null
+    workspaceId: string | null
     action: $Enums.ActivityAction | null
     entity: $Enums.ActivityEntity | null
     entityId: string | null
@@ -13125,6 +13164,7 @@ export namespace Prisma {
   export type ActivityLogCountAggregateOutputType = {
     id: number
     userId: number
+    workspaceId: number
     action: number
     entity: number
     entityId: number
@@ -13137,6 +13177,7 @@ export namespace Prisma {
   export type ActivityLogMinAggregateInputType = {
     id?: true
     userId?: true
+    workspaceId?: true
     action?: true
     entity?: true
     entityId?: true
@@ -13146,6 +13187,7 @@ export namespace Prisma {
   export type ActivityLogMaxAggregateInputType = {
     id?: true
     userId?: true
+    workspaceId?: true
     action?: true
     entity?: true
     entityId?: true
@@ -13155,6 +13197,7 @@ export namespace Prisma {
   export type ActivityLogCountAggregateInputType = {
     id?: true
     userId?: true
+    workspaceId?: true
     action?: true
     entity?: true
     entityId?: true
@@ -13238,6 +13281,7 @@ export namespace Prisma {
   export type ActivityLogGroupByOutputType = {
     id: string
     userId: string
+    workspaceId: string | null
     action: $Enums.ActivityAction
     entity: $Enums.ActivityEntity
     entityId: string
@@ -13265,39 +13309,46 @@ export namespace Prisma {
   export type ActivityLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+    workspaceId?: boolean
     action?: boolean
     entity?: boolean
     entityId?: boolean
     metadata?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | ActivityLog$workspaceArgs<ExtArgs>
   }, ExtArgs["result"]["activityLog"]>
 
   export type ActivityLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+    workspaceId?: boolean
     action?: boolean
     entity?: boolean
     entityId?: boolean
     metadata?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | ActivityLog$workspaceArgs<ExtArgs>
   }, ExtArgs["result"]["activityLog"]>
 
   export type ActivityLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+    workspaceId?: boolean
     action?: boolean
     entity?: boolean
     entityId?: boolean
     metadata?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | ActivityLog$workspaceArgs<ExtArgs>
   }, ExtArgs["result"]["activityLog"]>
 
   export type ActivityLogSelectScalar = {
     id?: boolean
     userId?: boolean
+    workspaceId?: boolean
     action?: boolean
     entity?: boolean
     entityId?: boolean
@@ -13305,25 +13356,30 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type ActivityLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "action" | "entity" | "entityId" | "metadata" | "createdAt", ExtArgs["result"]["activityLog"]>
+  export type ActivityLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "workspaceId" | "action" | "entity" | "entityId" | "metadata" | "createdAt", ExtArgs["result"]["activityLog"]>
   export type ActivityLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | ActivityLog$workspaceArgs<ExtArgs>
   }
   export type ActivityLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | ActivityLog$workspaceArgs<ExtArgs>
   }
   export type ActivityLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | ActivityLog$workspaceArgs<ExtArgs>
   }
 
   export type $ActivityLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ActivityLog"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
+      workspace: Prisma.$WorkspacePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
+      workspaceId: string | null
       action: $Enums.ActivityAction
       entity: $Enums.ActivityEntity
       entityId: string
@@ -13724,6 +13780,7 @@ export namespace Prisma {
   export interface Prisma__ActivityLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workspace<T extends ActivityLog$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, ActivityLog$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13755,6 +13812,7 @@ export namespace Prisma {
   interface ActivityLogFieldRefs {
     readonly id: FieldRef<"ActivityLog", 'String'>
     readonly userId: FieldRef<"ActivityLog", 'String'>
+    readonly workspaceId: FieldRef<"ActivityLog", 'String'>
     readonly action: FieldRef<"ActivityLog", 'ActivityAction'>
     readonly entity: FieldRef<"ActivityLog", 'ActivityEntity'>
     readonly entityId: FieldRef<"ActivityLog", 'String'>
@@ -14158,6 +14216,25 @@ export namespace Prisma {
      * Limit how many ActivityLogs to delete.
      */
     limit?: number
+  }
+
+  /**
+   * ActivityLog.workspace
+   */
+  export type ActivityLog$workspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
   }
 
   /**
@@ -16490,6 +16567,7 @@ export namespace Prisma {
   export const ActivityLogScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
+    workspaceId: 'workspaceId',
     action: 'action',
     entity: 'entity',
     entityId: 'entityId',
@@ -16984,6 +17062,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberListRelationFilter
     invitations?: InvitationListRelationFilter
     projects?: ProjectListRelationFilter
+    activityLogs?: ActivityLogListRelationFilter
   }
 
   export type WorkspaceOrderByWithRelationInput = {
@@ -17000,6 +17079,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberOrderByRelationAggregateInput
     invitations?: InvitationOrderByRelationAggregateInput
     projects?: ProjectOrderByRelationAggregateInput
+    activityLogs?: ActivityLogOrderByRelationAggregateInput
   }
 
   export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -17019,6 +17099,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberListRelationFilter
     invitations?: InvitationListRelationFilter
     projects?: ProjectListRelationFilter
+    activityLogs?: ActivityLogListRelationFilter
   }, "id" | "slug">
 
   export type WorkspaceOrderByWithAggregationInput = {
@@ -17585,23 +17666,27 @@ export namespace Prisma {
     NOT?: ActivityLogWhereInput | ActivityLogWhereInput[]
     id?: StringFilter<"ActivityLog"> | string
     userId?: StringFilter<"ActivityLog"> | string
+    workspaceId?: StringNullableFilter<"ActivityLog"> | string | null
     action?: EnumActivityActionFilter<"ActivityLog"> | $Enums.ActivityAction
     entity?: EnumActivityEntityFilter<"ActivityLog"> | $Enums.ActivityEntity
     entityId?: StringFilter<"ActivityLog"> | string
     metadata?: JsonNullableFilter<"ActivityLog">
     createdAt?: DateTimeFilter<"ActivityLog"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
   }
 
   export type ActivityLogOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
     action?: SortOrder
     entity?: SortOrder
     entityId?: SortOrder
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
+    workspace?: WorkspaceOrderByWithRelationInput
   }
 
   export type ActivityLogWhereUniqueInput = Prisma.AtLeast<{
@@ -17610,17 +17695,20 @@ export namespace Prisma {
     OR?: ActivityLogWhereInput[]
     NOT?: ActivityLogWhereInput | ActivityLogWhereInput[]
     userId?: StringFilter<"ActivityLog"> | string
+    workspaceId?: StringNullableFilter<"ActivityLog"> | string | null
     action?: EnumActivityActionFilter<"ActivityLog"> | $Enums.ActivityAction
     entity?: EnumActivityEntityFilter<"ActivityLog"> | $Enums.ActivityEntity
     entityId?: StringFilter<"ActivityLog"> | string
     metadata?: JsonNullableFilter<"ActivityLog">
     createdAt?: DateTimeFilter<"ActivityLog"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
   }, "id">
 
   export type ActivityLogOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
     action?: SortOrder
     entity?: SortOrder
     entityId?: SortOrder
@@ -17637,6 +17725,7 @@ export namespace Prisma {
     NOT?: ActivityLogScalarWhereWithAggregatesInput | ActivityLogScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ActivityLog"> | string
     userId?: StringWithAggregatesFilter<"ActivityLog"> | string
+    workspaceId?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
     action?: EnumActivityActionWithAggregatesFilter<"ActivityLog"> | $Enums.ActivityAction
     entity?: EnumActivityEntityWithAggregatesFilter<"ActivityLog"> | $Enums.ActivityEntity
     entityId?: StringWithAggregatesFilter<"ActivityLog"> | string
@@ -17969,6 +18058,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     invitations?: InvitationCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateInput = {
@@ -17984,6 +18074,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUpdateInput = {
@@ -17999,6 +18090,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     invitations?: InvitationUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateInput = {
@@ -18014,6 +18106,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceCreateManyInput = {
@@ -18591,11 +18684,13 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutActivityLogsInput
+    workspace?: WorkspaceCreateNestedOneWithoutActivityLogsInput
   }
 
   export type ActivityLogUncheckedCreateInput = {
     id?: string
     userId: string
+    workspaceId?: string | null
     action: $Enums.ActivityAction
     entity: $Enums.ActivityEntity
     entityId: string
@@ -18611,11 +18706,13 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutActivityLogsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutActivityLogsNestedInput
   }
 
   export type ActivityLogUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
     entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
     entityId?: StringFieldUpdateOperationsInput | string
@@ -18626,6 +18723,7 @@ export namespace Prisma {
   export type ActivityLogCreateManyInput = {
     id?: string
     userId: string
+    workspaceId?: string | null
     action: $Enums.ActivityAction
     entity: $Enums.ActivityEntity
     entityId: string
@@ -18645,6 +18743,7 @@ export namespace Prisma {
   export type ActivityLogUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
     entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
     entityId?: StringFieldUpdateOperationsInput | string
@@ -19617,9 +19716,15 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type WorkspaceNullableScalarRelationFilter = {
+    is?: WorkspaceWhereInput | null
+    isNot?: WorkspaceWhereInput | null
+  }
+
   export type ActivityLogCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    workspaceId?: SortOrder
     action?: SortOrder
     entity?: SortOrder
     entityId?: SortOrder
@@ -19630,6 +19735,7 @@ export namespace Prisma {
   export type ActivityLogMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    workspaceId?: SortOrder
     action?: SortOrder
     entity?: SortOrder
     entityId?: SortOrder
@@ -19639,6 +19745,7 @@ export namespace Prisma {
   export type ActivityLogMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    workspaceId?: SortOrder
     action?: SortOrder
     entity?: SortOrder
     entityId?: SortOrder
@@ -20388,6 +20495,13 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
+  export type ActivityLogCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<ActivityLogCreateWithoutWorkspaceInput, ActivityLogUncheckedCreateWithoutWorkspaceInput> | ActivityLogCreateWithoutWorkspaceInput[] | ActivityLogUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutWorkspaceInput | ActivityLogCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: ActivityLogCreateManyWorkspaceInputEnvelope
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+  }
+
   export type WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -20407,6 +20521,13 @@ export namespace Prisma {
     connectOrCreate?: ProjectCreateOrConnectWithoutWorkspaceInput | ProjectCreateOrConnectWithoutWorkspaceInput[]
     createMany?: ProjectCreateManyWorkspaceInputEnvelope
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+  }
+
+  export type ActivityLogUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<ActivityLogCreateWithoutWorkspaceInput, ActivityLogUncheckedCreateWithoutWorkspaceInput> | ActivityLogCreateWithoutWorkspaceInput[] | ActivityLogUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutWorkspaceInput | ActivityLogCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: ActivityLogCreateManyWorkspaceInputEnvelope
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
   }
 
   export type EnumWorkspaceStatusFieldUpdateOperationsInput = {
@@ -20463,6 +20584,20 @@ export namespace Prisma {
     deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
   }
 
+  export type ActivityLogUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<ActivityLogCreateWithoutWorkspaceInput, ActivityLogUncheckedCreateWithoutWorkspaceInput> | ActivityLogCreateWithoutWorkspaceInput[] | ActivityLogUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutWorkspaceInput | ActivityLogCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: ActivityLogUpsertWithWhereUniqueWithoutWorkspaceInput | ActivityLogUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: ActivityLogCreateManyWorkspaceInputEnvelope
+    set?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    disconnect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    delete?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    update?: ActivityLogUpdateWithWhereUniqueWithoutWorkspaceInput | ActivityLogUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: ActivityLogUpdateManyWithWhereWithoutWorkspaceInput | ActivityLogUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+  }
+
   export type WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -20503,6 +20638,20 @@ export namespace Prisma {
     update?: ProjectUpdateWithWhereUniqueWithoutWorkspaceInput | ProjectUpdateWithWhereUniqueWithoutWorkspaceInput[]
     updateMany?: ProjectUpdateManyWithWhereWithoutWorkspaceInput | ProjectUpdateManyWithWhereWithoutWorkspaceInput[]
     deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+  }
+
+  export type ActivityLogUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<ActivityLogCreateWithoutWorkspaceInput, ActivityLogUncheckedCreateWithoutWorkspaceInput> | ActivityLogCreateWithoutWorkspaceInput[] | ActivityLogUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutWorkspaceInput | ActivityLogCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: ActivityLogUpsertWithWhereUniqueWithoutWorkspaceInput | ActivityLogUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: ActivityLogCreateManyWorkspaceInputEnvelope
+    set?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    disconnect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    delete?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    update?: ActivityLogUpdateWithWhereUniqueWithoutWorkspaceInput | ActivityLogUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: ActivityLogUpdateManyWithWhereWithoutWorkspaceInput | ActivityLogUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
   }
 
   export type WorkspaceCreateNestedOneWithoutWorkspaceMembersInput = {
@@ -20945,6 +21094,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type WorkspaceCreateNestedOneWithoutActivityLogsInput = {
+    create?: XOR<WorkspaceCreateWithoutActivityLogsInput, WorkspaceUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutActivityLogsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
   export type EnumActivityActionFieldUpdateOperationsInput = {
     set?: $Enums.ActivityAction
   }
@@ -20959,6 +21114,16 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutActivityLogsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutActivityLogsInput, UserUpdateWithoutActivityLogsInput>, UserUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type WorkspaceUpdateOneWithoutActivityLogsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutActivityLogsInput, WorkspaceUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutActivityLogsInput
+    upsert?: WorkspaceUpsertWithoutActivityLogsInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutActivityLogsInput, WorkspaceUpdateWithoutActivityLogsInput>, WorkspaceUncheckedUpdateWithoutActivityLogsInput>
   }
 
   export type UserCreateNestedOneWithoutRefreshTokensInput = {
@@ -21416,6 +21581,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     invitations?: InvitationCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutOwnerInput = {
@@ -21430,6 +21596,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutOwnerInput = {
@@ -21801,10 +21968,12 @@ export namespace Prisma {
     entityId: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    workspace?: WorkspaceCreateNestedOneWithoutActivityLogsInput
   }
 
   export type ActivityLogUncheckedCreateWithoutUserInput = {
     id?: string
+    workspaceId?: string | null
     action: $Enums.ActivityAction
     entity: $Enums.ActivityEntity
     entityId: string
@@ -22187,6 +22356,7 @@ export namespace Prisma {
     NOT?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
     id?: StringFilter<"ActivityLog"> | string
     userId?: StringFilter<"ActivityLog"> | string
+    workspaceId?: StringNullableFilter<"ActivityLog"> | string | null
     action?: EnumActivityActionFilter<"ActivityLog"> | $Enums.ActivityAction
     entity?: EnumActivityEntityFilter<"ActivityLog"> | $Enums.ActivityEntity
     entityId?: StringFilter<"ActivityLog"> | string
@@ -22386,6 +22556,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ActivityLogCreateWithoutWorkspaceInput = {
+    id?: string
+    action: $Enums.ActivityAction
+    entity: $Enums.ActivityEntity
+    entityId: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutActivityLogsInput
+  }
+
+  export type ActivityLogUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    userId: string
+    action: $Enums.ActivityAction
+    entity: $Enums.ActivityEntity
+    entityId: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ActivityLogCreateOrConnectWithoutWorkspaceInput = {
+    where: ActivityLogWhereUniqueInput
+    create: XOR<ActivityLogCreateWithoutWorkspaceInput, ActivityLogUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type ActivityLogCreateManyWorkspaceInputEnvelope = {
+    data: ActivityLogCreateManyWorkspaceInput | ActivityLogCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutOwnedWorkspacesInput = {
     update: XOR<UserUpdateWithoutOwnedWorkspacesInput, UserUncheckedUpdateWithoutOwnedWorkspacesInput>
     create: XOR<UserCreateWithoutOwnedWorkspacesInput, UserUncheckedCreateWithoutOwnedWorkspacesInput>
@@ -22509,6 +22709,22 @@ export namespace Prisma {
     data: XOR<ProjectUpdateManyMutationInput, ProjectUncheckedUpdateManyWithoutWorkspaceInput>
   }
 
+  export type ActivityLogUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: ActivityLogWhereUniqueInput
+    update: XOR<ActivityLogUpdateWithoutWorkspaceInput, ActivityLogUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<ActivityLogCreateWithoutWorkspaceInput, ActivityLogUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type ActivityLogUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: ActivityLogWhereUniqueInput
+    data: XOR<ActivityLogUpdateWithoutWorkspaceInput, ActivityLogUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type ActivityLogUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: ActivityLogScalarWhereInput
+    data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
   export type WorkspaceCreateWithoutWorkspaceMembersInput = {
     id?: string
     name: string
@@ -22521,6 +22737,7 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     invitations?: InvitationCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutWorkspaceMembersInput = {
@@ -22535,6 +22752,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     invitations?: InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutWorkspaceMembersInput = {
@@ -22634,6 +22852,7 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     invitations?: InvitationUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutWorkspaceMembersInput = {
@@ -22648,6 +22867,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     invitations?: InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutWorkspaceMembersInput = {
@@ -22737,6 +22957,7 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     invitations?: InvitationCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutProjectsInput = {
@@ -22751,6 +22972,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutProjectsInput = {
@@ -22985,6 +23207,7 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     invitations?: InvitationUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutProjectsInput = {
@@ -22999,6 +23222,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutCreatedProjectsInput = {
@@ -23407,6 +23631,7 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
@@ -23421,6 +23646,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     projects?: ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
@@ -23589,6 +23815,7 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
@@ -23603,6 +23830,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutSentInvitationsInput = {
@@ -24634,6 +24862,41 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
   }
 
+  export type WorkspaceCreateWithoutActivityLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    logo?: string | null
+    status?: $Enums.WorkspaceStatus
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    invitations?: InvitationCreateNestedManyWithoutWorkspaceInput
+    projects?: ProjectCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutActivityLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    logo?: string | null
+    status?: $Enums.WorkspaceStatus
+    description?: string | null
+    ownerId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutActivityLogsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutActivityLogsInput, WorkspaceUncheckedCreateWithoutActivityLogsInput>
+  }
+
   export type UserUpsertWithoutActivityLogsInput = {
     update: XOR<UserUpdateWithoutActivityLogsInput, UserUncheckedUpdateWithoutActivityLogsInput>
     create: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
@@ -24707,6 +24970,47 @@ export namespace Prisma {
     taskComments?: TaskCommentUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUploaderNestedInput
+  }
+
+  export type WorkspaceUpsertWithoutActivityLogsInput = {
+    update: XOR<WorkspaceUpdateWithoutActivityLogsInput, WorkspaceUncheckedUpdateWithoutActivityLogsInput>
+    create: XOR<WorkspaceCreateWithoutActivityLogsInput, WorkspaceUncheckedCreateWithoutActivityLogsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutActivityLogsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutActivityLogsInput, WorkspaceUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type WorkspaceUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    workspaceMembers?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    invitations?: InvitationUpdateManyWithoutWorkspaceNestedInput
+    projects?: ProjectUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -25203,6 +25507,7 @@ export namespace Prisma {
 
   export type ActivityLogCreateManyUserInput = {
     id?: string
+    workspaceId?: string | null
     action: $Enums.ActivityAction
     entity: $Enums.ActivityEntity
     entityId: string
@@ -25231,6 +25536,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     invitations?: InvitationUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutOwnerInput = {
@@ -25245,6 +25551,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateManyWithoutOwnerInput = {
@@ -25620,10 +25927,12 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneWithoutActivityLogsNestedInput
   }
 
   export type ActivityLogUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
     entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
     entityId?: StringFieldUpdateOperationsInput | string
@@ -25633,6 +25942,7 @@ export namespace Prisma {
 
   export type ActivityLogUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
     entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
     entityId?: StringFieldUpdateOperationsInput | string
@@ -25695,6 +26005,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     userId?: string | null
+  }
+
+  export type ActivityLogCreateManyWorkspaceInput = {
+    id?: string
+    userId: string
+    action: $Enums.ActivityAction
+    entity: $Enums.ActivityEntity
+    entityId: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
   }
 
   export type WorkspaceMemberUpdateWithoutWorkspaceInput = {
@@ -25789,6 +26109,36 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ActivityLogUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
+    entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
+    entityId?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutActivityLogsNestedInput
+  }
+
+  export type ActivityLogUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
+    entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
+    entityId?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ActivityLogUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: EnumActivityActionFieldUpdateOperationsInput | $Enums.ActivityAction
+    entity?: EnumActivityEntityFieldUpdateOperationsInput | $Enums.ActivityEntity
+    entityId?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProjectMemberCreateManyProjectInput = {

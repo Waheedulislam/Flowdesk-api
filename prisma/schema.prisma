@@ -60,6 +60,7 @@ model Workspace {
   workspaceMembers WorkspaceMember[]
   invitations      Invitation[]
   projects         Project[]
+  activityLogs     ActivityLog[]
 }
 
 model WorkspaceMember {
@@ -184,6 +185,9 @@ model ActivityLog {
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
+
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
 
   action    ActivityAction
   entity    ActivityEntity

@@ -230,6 +230,7 @@ exports.Prisma.NotificationScalarFieldEnum = {
 exports.Prisma.ActivityLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  workspaceId: 'workspaceId',
   action: 'action',
   entity: 'entity',
   entityId: 'entityId',
