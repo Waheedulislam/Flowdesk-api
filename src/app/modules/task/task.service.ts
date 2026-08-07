@@ -1,7 +1,12 @@
 import prisma from "../../../config/prisma";
-import { TaskStatus, WorkspaceRole } from "../../../generated/prisma";
+import {
+  NotificationType,
+  TaskStatus,
+  WorkspaceRole,
+} from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
+import { createNotification } from "../notification/notification.utils";
 import { ICreateTask } from "./task.interface";
 import httpStatus from "http-status-codes";
 
@@ -79,6 +84,16 @@ const createTask = async (
       order: nextOrder,
     },
   });
+  // 6. Send Notification (if task assigned)
+  if (task.assignedTo) {
+    await createNotification({
+      userId: task.assignedTo,
+      title: "New Task Assigned",
+      message: `You have been assigned a new task: "${task.title}".`,
+      type: NotificationType.TASK_ASSIGNED,
+      link: `/projects/${projectId}/tasks/${task.id}`,
+    });
+  }
 
   return task;
 };
@@ -277,6 +292,27 @@ const updateTask = async (
       dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
     },
   });
+  // 6. Notify New Assignee
+  if (payload.assignedTo && payload.assignedTo !== task.assignedTo) {
+    await createNotification({
+      userId: payload.assignedTo,
+      title: "Task Assigned",
+      message: `You have been assigned the task "${updatedTask.title}".`,
+      type: NotificationType.TASK_ASSIGNED,
+      link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
+    });
+  }
+
+  // 7. Notify Task Creator if Status Changed
+  if (payload.status && payload.status !== task.status) {
+    await createNotification({
+      userId: task.createdBy,
+      title: "Task Status Updated",
+      message: `Task "${updatedTask.title}" status changed to ${updatedTask.status}.`,
+      type: NotificationType.TASK_UPDATED,
+      link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
+    });
+  }
 
   return updatedTask;
 };
@@ -322,6 +358,10 @@ const deleteTask = async (taskId: string, user: IAuthUser) => {
       "Only workspace owner or admin can delete tasks",
     );
   }
+  // Save data before delete
+  const assignedUserId = task.assignedTo;
+  const taskTitle = task.title;
+  const projectId = task.projectId;
 
   // 4. Delete Task
   await prisma.task.delete({
@@ -330,8 +370,19 @@ const deleteTask = async (taskId: string, user: IAuthUser) => {
     },
   });
 
+  // 5. Notify Assignee
+  if (assignedUserId && assignedUserId !== user!.userId) {
+    await createNotification({
+      userId: assignedUserId,
+      title: "Task Deleted",
+      message: `The task "${taskTitle}" assigned to you has been deleted.`,
+      type: NotificationType.TASK_DELETED,
+      link: `/projects/${projectId}`,
+    });
+  }
   return null;
 };
+
 export const TaskService = {
   createTask,
   getTasks,
