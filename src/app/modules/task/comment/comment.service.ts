@@ -3,8 +3,14 @@ import prisma from "../../../../config/prisma";
 import AppError from "../../../Errors/AppError";
 import { IAuthUser } from "../../../interface/common";
 import { ICreateComment, IUpdateComment } from "./comment.interface";
-import { NotificationType, WorkspaceRole } from "../../../../generated/prisma";
+import {
+  ActivityAction,
+  ActivityEntity,
+  NotificationType,
+  WorkspaceRole,
+} from "../../../../generated/prisma";
 import { createNotification } from "../../notification/notification.utils";
+import { createActivityLog } from "../../activity-log/activity-log.utils";
 
 const createComment = async (
   taskId: string,
@@ -101,6 +107,21 @@ const createComment = async (
       }),
     ),
   );
+
+  // 6. Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.COMMENT,
+    entity: ActivityEntity.COMMENT,
+    entityId: comment.id,
+    metadata: {
+      taskId: task.id,
+      projectId: task.projectId,
+      taskTitle: task.title,
+      commentId: comment.id,
+      commentBy: comment.user.name,
+    },
+  });
   return comment;
 };
 const getComments = async (taskId: string, user: IAuthUser) => {
