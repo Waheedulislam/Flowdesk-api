@@ -6,6 +6,7 @@ import { InvitationRoutes } from "../modules/invitation/invitation.route";
 import { ProjectRoutes } from "../modules/project/project.route";
 import { TaskRoutes } from "../modules/task/task.route";
 import { NotificationRoutes } from "../modules/notification/notification.route";
+import { ActivityLogRoutes } from "../modules/activity-log/activity-log.route";
 
 const router = express.Router();
 
@@ -37,6 +38,10 @@ const moduleRoutes = [
   {
     path: "/notifications",
     route: NotificationRoutes,
+  },
+  {
+    path: "/activity-logs",
+    route: ActivityLogRoutes,
   },
 ];
 

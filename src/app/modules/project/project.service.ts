@@ -65,12 +65,12 @@ const createProject = async (
     await tx.activityLog.create({
       data: {
         userId: user!.userId,
+        workspaceId: newProject.workspaceId,
         action: ActivityAction.CREATE,
         entity: ActivityEntity.PROJECT,
         entityId: newProject.id,
         metadata: {
           projectName: newProject.name,
-          workspaceId: newProject.workspaceId,
         },
       },
     });
@@ -209,6 +209,7 @@ const updateProject = async (
   // Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: project.workspaceId,
     action: ActivityAction.UPDATE,
     entity: ActivityEntity.PROJECT,
     entityId: updatedProject.id,
@@ -269,6 +270,7 @@ const deleteProject = async (projectId: string, user: IAuthUser) => {
   // Active log helpers - Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: project.workspaceId,
     action: ActivityAction.DELETE,
     entity: ActivityEntity.PROJECT,
     entityId: projectId,

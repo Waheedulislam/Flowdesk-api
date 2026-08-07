@@ -100,6 +100,7 @@ const createTask = async (
   // 7. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: project.workspaceId,
     action: ActivityAction.CREATE,
     entity: ActivityEntity.TASK,
     entityId: task.id,
@@ -337,6 +338,7 @@ const updateTask = async (
   // 8. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: task.project.workspaceId,
     action: payload.status
       ? ActivityAction.CHANGE_STATUS
       : ActivityAction.UPDATE,
@@ -422,6 +424,7 @@ const deleteTask = async (taskId: string, user: IAuthUser) => {
   // 6. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: task.project.workspaceId,
     action: ActivityAction.DELETE,
     entity: ActivityEntity.TASK,
     entityId: taskId,

@@ -111,6 +111,7 @@ const createComment = async (
   // 6. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: task.project.workspaceId,
     action: ActivityAction.COMMENT,
     entity: ActivityEntity.COMMENT,
     entityId: comment.id,

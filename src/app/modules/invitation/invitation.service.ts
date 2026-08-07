@@ -117,11 +117,11 @@ const createInvitation = async (
 
   await createActivityLog({
     userId: user!.userId,
+    workspaceId,
     action: ActivityAction.INVITE,
     entity: ActivityEntity.INVITATION,
     entityId: invitation.id,
     metadata: {
-      workspaceId,
       invitedEmail: invitation.email,
       role: invitation.role,
     },
@@ -242,11 +242,11 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
   // 8. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: invitation.workspaceId,
     action: ActivityAction.ACCEPT_INVITATION,
     entity: ActivityEntity.INVITATION,
     entityId: updatedInvitation.id,
     metadata: {
-      workspaceId: invitation.workspaceId,
       workspaceName: workspace?.name,
       invitedUser: currentUser?.name,
       role: invitation.role,

@@ -3,6 +3,7 @@ import { ActivityAction, ActivityEntity } from "../../../generated/prisma";
 
 interface ICreateActivityLog {
   userId: string;
+  workspaceId: string;
   action: ActivityAction;
   entity: ActivityEntity;
   entityId: string;

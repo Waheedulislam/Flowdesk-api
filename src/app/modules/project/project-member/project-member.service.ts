@@ -126,6 +126,7 @@ const addProjectMember = async (
   // Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: project.workspaceId,
     action: ActivityAction.ADD_MEMBER,
     entity: ActivityEntity.PROJECT_MEMBER,
     entityId: projectMember.id,
@@ -280,6 +281,7 @@ const updateProjectMemberRole = async (
   // 6. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: projectMember.project.workspaceId,
     action: ActivityAction.UPDATE_ROLE,
     entity: ActivityEntity.PROJECT_MEMBER,
     entityId: updatedMember.id,
@@ -350,6 +352,7 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
     // Create Activity Log
     await createActivityLog({
       userId: user!.userId,
+      workspaceId: projectMember.project.workspaceId,
       action: ActivityAction.REMOVE_MEMBER,
       entity: ActivityEntity.PROJECT_MEMBER,
       entityId: projectMember.id,
@@ -412,6 +415,7 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
   // Create Activity Log
   await createActivityLog({
     userId: user!.userId,
+    workspaceId: projectMember.project.workspaceId,
     action: ActivityAction.REMOVE_MEMBER,
     entity: ActivityEntity.PROJECT_MEMBER,
     entityId: projectMember.id,
