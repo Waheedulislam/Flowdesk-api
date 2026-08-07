@@ -3,7 +3,8 @@ import prisma from "../../../../config/prisma";
 import AppError from "../../../Errors/AppError";
 import { IAuthUser } from "../../../interface/common";
 import { ICreateComment, IUpdateComment } from "./comment.interface";
-import { WorkspaceRole } from "../../../../generated/prisma";
+import { NotificationType, WorkspaceRole } from "../../../../generated/prisma";
+import { createNotification } from "../../notification/notification.utils";
 
 const createComment = async (
   taskId: string,
@@ -76,7 +77,30 @@ const createComment = async (
       },
     },
   });
+  // 5. Notification Receivers
+  const receivers = new Set<string>();
+  // Notify Task Creator
+  if (task.createdBy !== user!.userId) {
+    receivers.add(task.createdBy);
+  }
 
+  // Notify Task Assignee
+  if (task.assignedTo && task.assignedTo !== user!.userId) {
+    receivers.add(task.assignedTo);
+  }
+
+  // Send Notifications (Parallel)
+  await Promise.all(
+    [...receivers].map((receiverId) =>
+      createNotification({
+        userId: receiverId,
+        title: "New Comment",
+        message: `${comment.user.name} commented on the task "${task.title}".`,
+        type: NotificationType.TASK_COMMENT,
+        link: `/projects/${task.projectId}/tasks/${task.id}`,
+      }),
+    ),
+  );
   return comment;
 };
 const getComments = async (taskId: string, user: IAuthUser) => {
