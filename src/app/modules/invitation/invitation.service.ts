@@ -1,9 +1,14 @@
 import prisma from "../../../config/prisma";
-import { InvitationStatus, WorkspaceRole } from "../../../generated/prisma";
+import {
+  InvitationStatus,
+  NotificationType,
+  WorkspaceRole,
+} from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
 import httpStatus from "http-status-codes";
 import crypto from "crypto";
+import { createNotification } from "../notification/notification.utils";
 
 const createInvitation = async (
   workspaceId: string,
@@ -111,18 +116,23 @@ const createInvitation = async (
 };
 
 const acceptInvitation = async (token: string, user: IAuthUser) => {
+  // 1. Check Invitation
   const invitation = await prisma.invitation.findUnique({
     where: {
       token,
     },
   });
+
   if (!invitation) {
     throw new AppError(httpStatus.NOT_FOUND, "Invitation not found");
   }
 
+  // 2. Check Invitation Status
   if (invitation.status !== InvitationStatus.PENDING) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invitation is no longer valid");
   }
+
+  // 3. Check Invitation Expiration
   if (invitation.expiresAt < new Date()) {
     await prisma.invitation.update({
       where: {
@@ -136,6 +146,7 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Invitation has expired");
   }
 
+  // 4. Check Invitation Owner
   if (user!.email !== invitation.email) {
     throw new AppError(
       httpStatus.FORBIDDEN,
@@ -143,6 +154,7 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
     );
   }
 
+  // 5. Accept Invitation
   const updatedInvitation = await prisma.$transaction(async (tx) => {
     const existingMember = await tx.workspaceMember.findUnique({
       where: {
@@ -168,7 +180,7 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
       },
     });
 
-    return await tx.invitation.update({
+    return tx.invitation.update({
       where: {
         id: invitation.id,
       },
@@ -177,6 +189,40 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
       },
     });
   });
+
+  // 6. Get Workspace & Current User
+  const [workspace, currentUser] = await Promise.all([
+    prisma.workspace.findUnique({
+      where: {
+        id: invitation.workspaceId,
+      },
+      select: {
+        id: true,
+        name: true,
+        ownerId: true,
+      },
+    }),
+
+    prisma.user.findUnique({
+      where: {
+        id: user!.userId,
+      },
+      select: {
+        name: true,
+      },
+    }),
+  ]);
+
+  // 7. Notify Workspace Owner
+  if (workspace && workspace.ownerId !== user!.userId) {
+    await createNotification({
+      userId: workspace.ownerId,
+      title: "Invitation Accepted",
+      message: `${currentUser?.name ?? "A user"} has joined your workspace "${workspace.name}".`,
+      type: NotificationType.WORKSPACE_INVITATION,
+      link: `/workspaces/${workspace.id}`,
+    });
+  }
 
   return updatedInvitation;
 };
