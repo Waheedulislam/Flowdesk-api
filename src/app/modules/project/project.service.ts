@@ -266,7 +266,7 @@ const deleteProject = async (projectId: string, user: IAuthUser) => {
     },
   });
 
-  // Active log helpers -  Create Activity Log
+  // Active log helpers - Create Activity Log
   await createActivityLog({
     userId: user!.userId,
     action: ActivityAction.DELETE,
