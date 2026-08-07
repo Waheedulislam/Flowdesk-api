@@ -301,12 +301,15 @@ enum ActivityAction {
   INVITE
   ASSIGNED
   COMMENT
+  ADD_MEMBER
+  UPDATE_ROLE
+  REMOVE_MEMBER
 }
 
 enum ActivityEntity {
   WORKSPACE
   PROJECT
+  PROJECT_MEMBER
   TASK
   COMMENT
-  FILE
 }

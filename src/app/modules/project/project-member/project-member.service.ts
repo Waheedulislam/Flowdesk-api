@@ -4,6 +4,8 @@ import AppError from "../../../Errors/AppError";
 import { IAuthUser } from "../../../interface/common";
 
 import {
+  ActivityAction,
+  ActivityEntity,
   NotificationType,
   ProjectRole,
   WorkspaceRole,
@@ -13,6 +15,7 @@ import {
   IUpdateProjectMember,
 } from "./project-member.interface";
 import { createNotification } from "../../notification/notification.utils";
+import { createActivityLog } from "../../activity-log/activity-log.utils";
 
 const addProjectMember = async (
   projectId: string,
@@ -118,6 +121,21 @@ const addProjectMember = async (
     message: `You have been added to "${project.name}".`,
     type: NotificationType.PROJECT_CREATED,
     link: `/projects/${project.id}`,
+  });
+
+  // Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.ADD_MEMBER,
+    entity: ActivityEntity.PROJECT_MEMBER,
+    entityId: projectMember.id,
+    metadata: {
+      projectId: project.id,
+      projectName: project.name,
+      memberId: projectMember.userId,
+      memberName: projectMember.user.name,
+      role: projectMember.role,
+    },
   });
 
   return projectMember;
@@ -259,9 +277,22 @@ const updateProjectMemberRole = async (
     type: NotificationType.PROJECT_ROLE_UPDATED,
     link: `/projects/${updatedMember.projectId}`,
   });
+  // 6. Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.UPDATE_ROLE,
+    entity: ActivityEntity.PROJECT_MEMBER,
+    entityId: updatedMember.id,
+    metadata: {
+      projectId: updatedMember.projectId,
+      memberId: updatedMember.userId,
+      newRole: updatedMember.role,
+    },
+  });
 
   return updatedMember;
 };
+
 const removeProjectMember = async (memberId: string, user: IAuthUser) => {
   // 1. Check Project Member Exists
   const projectMember = await prisma.projectMember.findUnique({
@@ -307,12 +338,27 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
       },
     });
 
+    // Create Notification
     await createNotification({
       userId: removedUserId,
       title: "Removed from Project",
       message: `You have been removed from "${projectName}".`,
       type: NotificationType.PROJECT_MEMBER_REMOVED,
       link: `/projects/${projectId}`,
+    });
+
+    // Create Activity Log
+    await createActivityLog({
+      userId: user!.userId,
+      action: ActivityAction.REMOVE_MEMBER,
+      entity: ActivityEntity.PROJECT_MEMBER,
+      entityId: projectMember.id,
+      metadata: {
+        projectId,
+        projectName,
+        memberId: removedUserId,
+        role: projectMember.role,
+      },
     });
 
     return null;
@@ -362,6 +408,19 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
     message: `You have been removed from "${projectName}".`,
     type: NotificationType.PROJECT_MEMBER_REMOVED,
     link: `/projects/${projectId}`,
+  });
+  // Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.REMOVE_MEMBER,
+    entity: ActivityEntity.PROJECT_MEMBER,
+    entityId: projectMember.id,
+    metadata: {
+      projectId,
+      memberId: removedUserId,
+      projectName,
+      role: projectMember.role,
+    },
   });
 
   return null;
