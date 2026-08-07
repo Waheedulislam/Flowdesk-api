@@ -1,7 +1,13 @@
 import prisma from "../../../config/prisma";
-import { ProjectRole, WorkspaceRole } from "../../../generated/prisma";
+import {
+  ActivityAction,
+  ActivityEntity,
+  ProjectRole,
+  WorkspaceRole,
+} from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
+import { createActivityLog } from "../activity-log/activity-log.utils";
 import { ICreateProject } from "./project.interface";
 import httpStatus from "http-status-codes";
 
@@ -53,6 +59,19 @@ const createProject = async (
         projectId: newProject.id,
         userId: user!.userId,
         role: ProjectRole.PROJECT_ADMIN,
+      },
+    });
+    // Create Activity Log
+    await tx.activityLog.create({
+      data: {
+        userId: user!.userId,
+        action: ActivityAction.CREATE,
+        entity: ActivityEntity.PROJECT,
+        entityId: newProject.id,
+        metadata: {
+          projectName: newProject.name,
+          workspaceId: newProject.workspaceId,
+        },
       },
     });
 
@@ -187,6 +206,18 @@ const updateProject = async (
     data: payload,
   });
 
+  // Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.UPDATE,
+    entity: ActivityEntity.PROJECT,
+    entityId: updatedProject.id,
+    metadata: {
+      projectName: updatedProject.name,
+      workspaceId: updatedProject.workspaceId,
+    },
+  });
+
   return updatedProject;
 };
 const deleteProject = async (projectId: string, user: IAuthUser) => {
@@ -226,9 +257,24 @@ const deleteProject = async (projectId: string, user: IAuthUser) => {
     );
   }
 
+  // Save project info before delete
+  const projectName = project.name;
+
   await prisma.project.delete({
     where: {
       id: projectId,
+    },
+  });
+
+  // Active log helpers -  Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.DELETE,
+    entity: ActivityEntity.PROJECT,
+    entityId: projectId,
+    metadata: {
+      projectName,
+      workspaceId: project.workspaceId,
     },
   });
 
