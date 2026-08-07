@@ -1,5 +1,7 @@
 import prisma from "../../../config/prisma";
 import {
+  ActivityAction,
+  ActivityEntity,
   InvitationStatus,
   NotificationType,
   WorkspaceRole,
@@ -9,6 +11,7 @@ import { IAuthUser } from "../../interface/common";
 import httpStatus from "http-status-codes";
 import crypto from "crypto";
 import { createNotification } from "../notification/notification.utils";
+import { createActivityLog } from "../activity-log/activity-log.utils";
 
 const createInvitation = async (
   workspaceId: string,
@@ -109,6 +112,18 @@ const createInvitation = async (
       token,
       expiresAt,
       userId: invitedUser?.id,
+    },
+  });
+
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.INVITE,
+    entity: ActivityEntity.INVITATION,
+    entityId: invitation.id,
+    metadata: {
+      workspaceId,
+      invitedEmail: invitation.email,
+      role: invitation.role,
     },
   });
 
@@ -223,6 +238,20 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
       link: `/workspaces/${workspace.id}`,
     });
   }
+
+  // 8. Create Activity Log
+  await createActivityLog({
+    userId: user!.userId,
+    action: ActivityAction.ACCEPT_INVITATION,
+    entity: ActivityEntity.INVITATION,
+    entityId: updatedInvitation.id,
+    metadata: {
+      workspaceId: invitation.workspaceId,
+      workspaceName: workspace?.name,
+      invitedUser: currentUser?.name,
+      role: invitation.role,
+    },
+  });
 
   return updatedInvitation;
 };
