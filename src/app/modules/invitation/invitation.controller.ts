@@ -29,6 +29,10 @@ const createInvitation = catchAsync(
 );
 const acceptInvitation = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
+    if (!req.user) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+    }
+
     const result = await InvitationService.acceptInvitation(
       req.params.token as string,
       req.user!,

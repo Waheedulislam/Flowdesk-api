@@ -260,8 +260,24 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
     }),
   ]);
 
-  // 7. Notify Workspace Owner
-  if (workspace && workspace.ownerId !== user!.userId) {
+  // Workspace should exist because invitation belongs to it
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+
+  // 7. Get Workspace Owner
+  const owner = await prisma.user.findUnique({
+    where: {
+      id: workspace.ownerId,
+    },
+    select: {
+      name: true,
+      email: true,
+    },
+  });
+
+  // 8. Notify Workspace Owner
+  if (workspace.ownerId !== user!.userId) {
     await createNotification({
       userId: workspace.ownerId,
       title: "Invitation Accepted",
@@ -269,9 +285,38 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
       type: NotificationType.WORKSPACE_INVITATION,
       link: `/workspaces/${workspace.id}`,
     });
+
+    // 9. Send Email to Workspace Owner
+    if (owner?.email) {
+      try {
+        await sendEmail({
+          to: owner.email,
+          subject: "Invitation Accepted",
+          html: `
+            <h2>Invitation Accepted</h2>
+
+            <p>
+              <strong>${currentUser?.name ?? "A user"}</strong>
+              has accepted your invitation and joined your workspace
+              <strong>${workspace.name}</strong>.
+            </p>
+
+            <p>
+              You can now collaborate with them in FlowDesk.
+            </p>
+
+            <p>
+              — FlowDesk Team
+            </p>
+          `,
+        });
+      } catch (error) {
+        console.error("Failed to send invitation accepted email:", error);
+      }
+    }
   }
 
-  // 8. Create Activity Log
+  // 10. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
     workspaceId: invitation.workspaceId,
@@ -279,7 +324,7 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
     entity: ActivityEntity.INVITATION,
     entityId: updatedInvitation.id,
     metadata: {
-      workspaceName: workspace?.name,
+      workspaceName: workspace.name,
       invitedUser: currentUser?.name,
       role: invitation.role,
     },
