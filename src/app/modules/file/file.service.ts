@@ -3,6 +3,7 @@ import prisma from "../../../config/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
 import { uploadToCloudinary } from "../../../utils/uploadToCloudinary";
+import cloudinary from "../../../config/cloudinary";
 
 const uploadFile = async (
   taskId: string,
@@ -148,8 +149,85 @@ const getTaskFiles = async (taskId: string, user: IAuthUser) => {
 
   return files;
 };
+const deleteFile = async (fileId: string, user: IAuthUser) => {
+  // 1. Check File
+  const file = await prisma.file.findUnique({
+    where: {
+      id: fileId,
+    },
+    include: {
+      task: {
+        include: {
+          project: true,
+        },
+      },
+    },
+  });
+
+  if (!file) {
+    throw new AppError(httpStatus.NOT_FOUND, "File not found");
+  }
+
+  // 2. Check Workspace Member
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: file.task.project.workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!workspaceMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Check Project Member
+  const projectMember = await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: {
+        projectId: file.task.projectId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!projectMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this project",
+    );
+  }
+
+  // 4. Delete from Cloudinary
+  try {
+    await cloudinary.uploader.destroy(file.publicId, {
+      resource_type: "image",
+    });
+  } catch (error) {
+    console.error("Cloudinary delete failed:", error);
+
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to delete file from Cloudinary",
+    );
+  }
+
+  // 5. Delete from Database
+  await prisma.file.delete({
+    where: {
+      id: fileId,
+    },
+  });
+
+  return null;
+};
 
 export const FileService = {
   uploadFile,
   getTaskFiles,
+  deleteFile,
 };

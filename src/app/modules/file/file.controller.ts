@@ -51,7 +51,25 @@ const getTaskFiles = catchAsync(
   },
 );
 
+const deleteFile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    if (!req.user) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+    }
+
+    await FileService.deleteFile(req.params.fileId as string, req.user);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "File deleted successfully",
+      data: null,
+    });
+  },
+);
+
 export const FileController = {
   uploadFile,
   getTaskFiles,
+  deleteFile,
 };

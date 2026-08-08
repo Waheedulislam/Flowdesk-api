@@ -12,5 +12,6 @@ router.post(
   FileController.uploadFile,
 );
 router.get("/task/:taskId", auth(), FileController.getTaskFiles);
+router.delete("/:fileId", auth(), FileController.deleteFile);
 
 export const FileRoutes = router;
