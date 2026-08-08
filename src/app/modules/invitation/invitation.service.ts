@@ -12,6 +12,8 @@ import httpStatus from "http-status-codes";
 import crypto from "crypto";
 import { createNotification } from "../notification/notification.utils";
 import { createActivityLog } from "../activity-log/activity-log.utils";
+import { sendEmail } from "../../../utils/sendEmail";
+import { invitationTemplate } from "../../../utils/emailTemplate";
 
 const createInvitation = async (
   workspaceId: string,
@@ -24,13 +26,25 @@ const createInvitation = async (
   // Normalize email
   const email = payload.email.trim().toLowerCase();
 
-  // Check workspace exists
-  const workspace = await prisma.workspace.findUnique({
-    where: {
-      id: workspaceId,
-    },
-  });
+  // Get workspace & inviter
+  const [workspace, inviter] = await Promise.all([
+    prisma.workspace.findUnique({
+      where: {
+        id: workspaceId,
+      },
+    }),
 
+    prisma.user.findUnique({
+      where: {
+        id: user!.userId,
+      },
+      select: {
+        name: true,
+      },
+    }),
+  ]);
+
+  // Check workspace exists
   if (!workspace) {
     throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
   }
@@ -115,6 +129,7 @@ const createInvitation = async (
     },
   });
 
+  // Create activity log
   await createActivityLog({
     userId: user!.userId,
     workspaceId,
@@ -127,9 +142,26 @@ const createInvitation = async (
     },
   });
 
+  // Generate invitation link
+  const inviteLink = `${process.env.CLIENT_URL}/accept-invitation/${invitation.token}`;
+
+  // Send invitation email
+  try {
+    await sendEmail({
+      to: invitation.email,
+      subject: `Invitation to join ${workspace.name}`,
+      html: invitationTemplate({
+        inviterName: inviter?.name ?? "FlowDesk",
+        workspaceName: workspace.name,
+        inviteLink,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send invitation email:", error);
+  }
+
   return invitation;
 };
-
 const acceptInvitation = async (token: string, user: IAuthUser) => {
   // 1. Check Invitation
   const invitation = await prisma.invitation.findUnique({
