@@ -116,6 +116,7 @@ model Invitation {
   invitedBy   String
   inviter     User             @relation("UserInvitations", fields: [invitedBy], references: [id])
   email       String
+  emailSent   Boolean          @default(false)
   role        WorkspaceRole
   token       String           @unique
   status      InvitationStatus @default(PENDING)
