@@ -7,6 +7,7 @@ import { ProjectRoutes } from "../modules/project/project.route";
 import { TaskRoutes } from "../modules/task/task.route";
 import { NotificationRoutes } from "../modules/notification/notification.route";
 import { ActivityLogRoutes } from "../modules/activity-log/activity-log.route";
+import { FileRoutes } from "../modules/file/file.route";
 
 const router = express.Router();
 
@@ -42,6 +43,10 @@ const moduleRoutes = [
   {
     path: "/activity-logs",
     route: ActivityLogRoutes,
+  },
+  {
+    path: "/files",
+    route: FileRoutes,
   },
 ];
 
