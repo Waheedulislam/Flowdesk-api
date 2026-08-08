@@ -11,5 +11,6 @@ router.post(
   upload.single("file"),
   FileController.uploadFile,
 );
+router.get("/task/:taskId", auth(), FileController.getTaskFiles);
 
 export const FileRoutes = router;
