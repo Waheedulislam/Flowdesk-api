@@ -184,6 +184,7 @@ exports.Prisma.InvitationScalarFieldEnum = {
   workspaceId: 'workspaceId',
   invitedBy: 'invitedBy',
   email: 'email',
+  emailSent: 'emailSent',
   role: 'role',
   token: 'token',
   status: 'status',
@@ -368,7 +369,9 @@ exports.ActivityAction = exports.$Enums.ActivityAction = {
   REMOVE_MEMBER: 'REMOVE_MEMBER',
   ASSIGN_TASK: 'ASSIGN_TASK',
   CHANGE_STATUS: 'CHANGE_STATUS',
-  ACCEPT_INVITATION: 'ACCEPT_INVITATION'
+  ACCEPT_INVITATION: 'ACCEPT_INVITATION',
+  FILE_UPLOAD: 'FILE_UPLOAD',
+  FILE_DELETE: 'FILE_DELETE'
 };
 
 exports.ActivityEntity = exports.$Enums.ActivityEntity = {
@@ -377,7 +380,8 @@ exports.ActivityEntity = exports.$Enums.ActivityEntity = {
   PROJECT_MEMBER: 'PROJECT_MEMBER',
   TASK: 'TASK',
   COMMENT: 'COMMENT',
-  INVITATION: 'INVITATION'
+  INVITATION: 'INVITATION',
+  FILE: 'FILE'
 };
 
 exports.Prisma.ModelName = {

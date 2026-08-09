@@ -116,6 +116,7 @@ model Invitation {
   invitedBy   String
   inviter     User             @relation("UserInvitations", fields: [invitedBy], references: [id])
   email       String
+  emailSent   Boolean          @default(false)
   role        WorkspaceRole
   token       String           @unique
   status      InvitationStatus @default(PENDING)
@@ -315,6 +316,9 @@ enum ActivityAction {
   CHANGE_STATUS
 
   ACCEPT_INVITATION
+
+  FILE_UPLOAD
+  FILE_DELETE
 }
 
 enum ActivityEntity {
@@ -324,4 +328,5 @@ enum ActivityEntity {
   TASK
   COMMENT
   INVITATION
+  FILE
 }
