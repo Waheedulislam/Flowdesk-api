@@ -4,6 +4,8 @@ import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
 import { uploadToCloudinary } from "../../../utils/uploadToCloudinary";
 import cloudinary from "../../../config/cloudinary";
+import { ActivityAction, ActivityEntity } from "../../../generated/prisma";
+import { createActivityLog } from "../activity-log/activity-log.utils";
 
 const uploadFile = async (
   taskId: string,
@@ -72,6 +74,20 @@ const uploadFile = async (
       url: uploadedFile.secure_url,
       publicId: uploadedFile.public_id,
       uploadedBy: user!.userId,
+    },
+  });
+
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId: task.project.workspaceId,
+    action: ActivityAction.FILE_UPLOAD,
+    entity: ActivityEntity.FILE,
+    entityId: newFile.id,
+    metadata: {
+      fileName: newFile.fileName,
+      taskId: task.id,
+      taskTitle: task.title,
+      publicId: newFile.publicId,
     },
   });
 
@@ -149,6 +165,7 @@ const getTaskFiles = async (taskId: string, user: IAuthUser) => {
 
   return files;
 };
+
 const deleteFile = async (fileId: string, user: IAuthUser) => {
   // 1. Check File
   const file = await prisma.file.findUnique({
@@ -220,6 +237,19 @@ const deleteFile = async (fileId: string, user: IAuthUser) => {
   await prisma.file.delete({
     where: {
       id: fileId,
+    },
+  });
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId: file.task.project.workspaceId,
+    action: ActivityAction.FILE_DELETE,
+    entity: ActivityEntity.FILE,
+    entityId: file.id,
+    metadata: {
+      fileName: file.fileName,
+      taskId: file.task.id,
+      taskTitle: file.task.title,
+      publicId: file.publicId,
     },
   });
 

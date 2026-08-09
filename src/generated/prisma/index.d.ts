@@ -195,7 +195,9 @@ export const ActivityAction: {
   REMOVE_MEMBER: 'REMOVE_MEMBER',
   ASSIGN_TASK: 'ASSIGN_TASK',
   CHANGE_STATUS: 'CHANGE_STATUS',
-  ACCEPT_INVITATION: 'ACCEPT_INVITATION'
+  ACCEPT_INVITATION: 'ACCEPT_INVITATION',
+  FILE_UPLOAD: 'FILE_UPLOAD',
+  FILE_DELETE: 'FILE_DELETE'
 };
 
 export type ActivityAction = (typeof ActivityAction)[keyof typeof ActivityAction]
@@ -207,7 +209,8 @@ export const ActivityEntity: {
   PROJECT_MEMBER: 'PROJECT_MEMBER',
   TASK: 'TASK',
   COMMENT: 'COMMENT',
-  INVITATION: 'INVITATION'
+  INVITATION: 'INVITATION',
+  FILE: 'FILE'
 };
 
 export type ActivityEntity = (typeof ActivityEntity)[keyof typeof ActivityEntity]
@@ -8516,6 +8519,7 @@ export namespace Prisma {
     workspaceId: string | null
     invitedBy: string | null
     email: string | null
+    emailSent: boolean | null
     role: $Enums.WorkspaceRole | null
     token: string | null
     status: $Enums.InvitationStatus | null
@@ -8529,6 +8533,7 @@ export namespace Prisma {
     workspaceId: string | null
     invitedBy: string | null
     email: string | null
+    emailSent: boolean | null
     role: $Enums.WorkspaceRole | null
     token: string | null
     status: $Enums.InvitationStatus | null
@@ -8542,6 +8547,7 @@ export namespace Prisma {
     workspaceId: number
     invitedBy: number
     email: number
+    emailSent: number
     role: number
     token: number
     status: number
@@ -8557,6 +8563,7 @@ export namespace Prisma {
     workspaceId?: true
     invitedBy?: true
     email?: true
+    emailSent?: true
     role?: true
     token?: true
     status?: true
@@ -8570,6 +8577,7 @@ export namespace Prisma {
     workspaceId?: true
     invitedBy?: true
     email?: true
+    emailSent?: true
     role?: true
     token?: true
     status?: true
@@ -8583,6 +8591,7 @@ export namespace Prisma {
     workspaceId?: true
     invitedBy?: true
     email?: true
+    emailSent?: true
     role?: true
     token?: true
     status?: true
@@ -8669,6 +8678,7 @@ export namespace Prisma {
     workspaceId: string
     invitedBy: string
     email: string
+    emailSent: boolean
     role: $Enums.WorkspaceRole
     token: string
     status: $Enums.InvitationStatus
@@ -8699,6 +8709,7 @@ export namespace Prisma {
     workspaceId?: boolean
     invitedBy?: boolean
     email?: boolean
+    emailSent?: boolean
     role?: boolean
     token?: boolean
     status?: boolean
@@ -8715,6 +8726,7 @@ export namespace Prisma {
     workspaceId?: boolean
     invitedBy?: boolean
     email?: boolean
+    emailSent?: boolean
     role?: boolean
     token?: boolean
     status?: boolean
@@ -8731,6 +8743,7 @@ export namespace Prisma {
     workspaceId?: boolean
     invitedBy?: boolean
     email?: boolean
+    emailSent?: boolean
     role?: boolean
     token?: boolean
     status?: boolean
@@ -8747,6 +8760,7 @@ export namespace Prisma {
     workspaceId?: boolean
     invitedBy?: boolean
     email?: boolean
+    emailSent?: boolean
     role?: boolean
     token?: boolean
     status?: boolean
@@ -8755,7 +8769,7 @@ export namespace Prisma {
     userId?: boolean
   }
 
-  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "invitedBy" | "email" | "role" | "token" | "status" | "expiresAt" | "createdAt" | "userId", ExtArgs["result"]["invitation"]>
+  export type InvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "invitedBy" | "email" | "emailSent" | "role" | "token" | "status" | "expiresAt" | "createdAt" | "userId", ExtArgs["result"]["invitation"]>
   export type InvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
     inviter?: boolean | UserDefaultArgs<ExtArgs>
@@ -8784,6 +8798,7 @@ export namespace Prisma {
       workspaceId: string
       invitedBy: string
       email: string
+      emailSent: boolean
       role: $Enums.WorkspaceRole
       token: string
       status: $Enums.InvitationStatus
@@ -9220,6 +9235,7 @@ export namespace Prisma {
     readonly workspaceId: FieldRef<"Invitation", 'String'>
     readonly invitedBy: FieldRef<"Invitation", 'String'>
     readonly email: FieldRef<"Invitation", 'String'>
+    readonly emailSent: FieldRef<"Invitation", 'Boolean'>
     readonly role: FieldRef<"Invitation", 'WorkspaceRole'>
     readonly token: FieldRef<"Invitation", 'String'>
     readonly status: FieldRef<"Invitation", 'InvitationStatus'>
@@ -16509,6 +16525,7 @@ export namespace Prisma {
     workspaceId: 'workspaceId',
     invitedBy: 'invitedBy',
     email: 'email',
+    emailSent: 'emailSent',
     role: 'role',
     token: 'token',
     status: 'status',
@@ -17345,6 +17362,7 @@ export namespace Prisma {
     workspaceId?: StringFilter<"Invitation"> | string
     invitedBy?: StringFilter<"Invitation"> | string
     email?: StringFilter<"Invitation"> | string
+    emailSent?: BoolFilter<"Invitation"> | boolean
     role?: EnumWorkspaceRoleFilter<"Invitation"> | $Enums.WorkspaceRole
     token?: StringFilter<"Invitation"> | string
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
@@ -17361,6 +17379,7 @@ export namespace Prisma {
     workspaceId?: SortOrder
     invitedBy?: SortOrder
     email?: SortOrder
+    emailSent?: SortOrder
     role?: SortOrder
     token?: SortOrder
     status?: SortOrder
@@ -17381,6 +17400,7 @@ export namespace Prisma {
     workspaceId?: StringFilter<"Invitation"> | string
     invitedBy?: StringFilter<"Invitation"> | string
     email?: StringFilter<"Invitation"> | string
+    emailSent?: BoolFilter<"Invitation"> | boolean
     role?: EnumWorkspaceRoleFilter<"Invitation"> | $Enums.WorkspaceRole
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
     expiresAt?: DateTimeFilter<"Invitation"> | Date | string
@@ -17396,6 +17416,7 @@ export namespace Prisma {
     workspaceId?: SortOrder
     invitedBy?: SortOrder
     email?: SortOrder
+    emailSent?: SortOrder
     role?: SortOrder
     token?: SortOrder
     status?: SortOrder
@@ -17415,6 +17436,7 @@ export namespace Prisma {
     workspaceId?: StringWithAggregatesFilter<"Invitation"> | string
     invitedBy?: StringWithAggregatesFilter<"Invitation"> | string
     email?: StringWithAggregatesFilter<"Invitation"> | string
+    emailSent?: BoolWithAggregatesFilter<"Invitation"> | boolean
     role?: EnumWorkspaceRoleWithAggregatesFilter<"Invitation"> | $Enums.WorkspaceRole
     token?: StringWithAggregatesFilter<"Invitation"> | string
     status?: EnumInvitationStatusWithAggregatesFilter<"Invitation"> | $Enums.InvitationStatus
@@ -18344,6 +18366,7 @@ export namespace Prisma {
   export type InvitationCreateInput = {
     id?: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -18359,6 +18382,7 @@ export namespace Prisma {
     workspaceId: string
     invitedBy: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -18370,6 +18394,7 @@ export namespace Prisma {
   export type InvitationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -18385,6 +18410,7 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     invitedBy?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -18398,6 +18424,7 @@ export namespace Prisma {
     workspaceId: string
     invitedBy: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -18409,6 +18436,7 @@ export namespace Prisma {
   export type InvitationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -18421,6 +18449,7 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     invitedBy?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -19439,6 +19468,7 @@ export namespace Prisma {
     workspaceId?: SortOrder
     invitedBy?: SortOrder
     email?: SortOrder
+    emailSent?: SortOrder
     role?: SortOrder
     token?: SortOrder
     status?: SortOrder
@@ -19452,6 +19482,7 @@ export namespace Prisma {
     workspaceId?: SortOrder
     invitedBy?: SortOrder
     email?: SortOrder
+    emailSent?: SortOrder
     role?: SortOrder
     token?: SortOrder
     status?: SortOrder
@@ -19465,6 +19496,7 @@ export namespace Prisma {
     workspaceId?: SortOrder
     invitedBy?: SortOrder
     email?: SortOrder
+    emailSent?: SortOrder
     role?: SortOrder
     token?: SortOrder
     status?: SortOrder
@@ -21636,6 +21668,7 @@ export namespace Prisma {
   export type InvitationCreateWithoutInviterInput = {
     id?: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -21649,6 +21682,7 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -21670,6 +21704,7 @@ export namespace Prisma {
   export type InvitationCreateWithoutUserInput = {
     id?: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -21684,6 +21719,7 @@ export namespace Prisma {
     workspaceId: string
     invitedBy: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -22101,6 +22137,7 @@ export namespace Prisma {
     workspaceId?: StringFilter<"Invitation"> | string
     invitedBy?: StringFilter<"Invitation"> | string
     email?: StringFilter<"Invitation"> | string
+    emailSent?: BoolFilter<"Invitation"> | boolean
     role?: EnumWorkspaceRoleFilter<"Invitation"> | $Enums.WorkspaceRole
     token?: StringFilter<"Invitation"> | string
     status?: EnumInvitationStatusFilter<"Invitation"> | $Enums.InvitationStatus
@@ -22489,6 +22526,7 @@ export namespace Prisma {
   export type InvitationCreateWithoutWorkspaceInput = {
     id?: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -22502,6 +22540,7 @@ export namespace Prisma {
     id?: string
     invitedBy: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -25403,6 +25442,7 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -25416,6 +25456,7 @@ export namespace Prisma {
     workspaceId: string
     invitedBy: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -25589,6 +25630,7 @@ export namespace Prisma {
   export type InvitationUpdateWithoutInviterInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -25602,6 +25644,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -25614,6 +25657,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -25625,6 +25669,7 @@ export namespace Prisma {
   export type InvitationUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -25639,6 +25684,7 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     invitedBy?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -25651,6 +25697,7 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     invitedBy?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -25988,6 +26035,7 @@ export namespace Prisma {
     id?: string
     invitedBy: string
     email: string
+    emailSent?: boolean
     role: $Enums.WorkspaceRole
     token: string
     status?: $Enums.InvitationStatus
@@ -26041,6 +26089,7 @@ export namespace Prisma {
   export type InvitationUpdateWithoutWorkspaceInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -26054,6 +26103,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     invitedBy?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
@@ -26066,6 +26116,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     invitedBy?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    emailSent?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumWorkspaceRoleFieldUpdateOperationsInput | $Enums.WorkspaceRole
     token?: StringFieldUpdateOperationsInput | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus

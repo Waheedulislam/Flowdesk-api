@@ -316,6 +316,9 @@ enum ActivityAction {
   CHANGE_STATUS
 
   ACCEPT_INVITATION
+
+  FILE_UPLOAD
+  FILE_DELETE
 }
 
 enum ActivityEntity {
@@ -325,4 +328,5 @@ enum ActivityEntity {
   TASK
   COMMENT
   INVITATION
+  FILE
 }
