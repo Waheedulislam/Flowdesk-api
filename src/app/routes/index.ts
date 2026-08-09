@@ -8,6 +8,7 @@ import { TaskRoutes } from "../modules/task/task.route";
 import { NotificationRoutes } from "../modules/notification/notification.route";
 import { ActivityLogRoutes } from "../modules/activity-log/activity-log.route";
 import { FileRoutes } from "../modules/file/file.route";
+import { AnalyticsRoutes } from "../modules/analytics/analytics.route";
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: "/files",
     route: FileRoutes,
+  },
+  {
+    path: "/analytics",
+    route: AnalyticsRoutes,
   },
 ];
 
