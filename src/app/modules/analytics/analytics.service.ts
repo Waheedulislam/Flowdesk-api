@@ -103,6 +103,8 @@ const getWorkspaceAnalytics = async (workspaceId: string, user: IAuthUser) => {
       },
     }),
   ]);
+  const completionRate =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return {
     totalProjects,
@@ -112,6 +114,7 @@ const getWorkspaceAnalytics = async (workspaceId: string, user: IAuthUser) => {
     todoTasks,
     totalMembers,
     overdueTasks,
+    completionRate,
   };
 };
 
@@ -179,6 +182,10 @@ const getProjectAnalytics = async (workspaceId: string, user: IAuthUser) => {
       (task) => task.status === TaskStatus.TODO,
     ).length;
 
+    const totalTasks = project._count.tasks;
+    const completionRate =
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
     return {
       projectId: project.id,
       projectName: project.name,
@@ -186,6 +193,7 @@ const getProjectAnalytics = async (workspaceId: string, user: IAuthUser) => {
       completedTasks,
       inProgressTasks,
       todoTasks,
+      completionRate,
     };
   });
 };
