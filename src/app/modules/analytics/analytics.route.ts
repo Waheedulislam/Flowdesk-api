@@ -10,4 +10,9 @@ router.get(
   AnalyticsController.getWorkspaceAnalytics,
 );
 
+router.get(
+  "/projects/:workspaceId",
+  auth(),
+  AnalyticsController.getProjectAnalytics,
+);
 export const AnalyticsRoutes = router;
