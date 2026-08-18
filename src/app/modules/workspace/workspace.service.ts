@@ -214,7 +214,49 @@ const updateMemberRole = async (
 
   return updatedMember;
 };
+const getWorkspaceMembers = async (workspaceId: string, user: IAuthUser) => {
+  // 1. Check workspace + current user's membership
+  const currentMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
 
+  if (!currentMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 2. Get all workspace members
+  const members = await prisma.workspaceMember.findMany({
+    where: {
+      workspaceId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+          designation: true,
+          jobTitle: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: {
+      joinedAt: "asc",
+    },
+  });
+
+  return members;
+};
 const removeMember = async (
   workspaceId: string,
   memberId: string,
@@ -340,6 +382,7 @@ export const WorkspaceService = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
+  getWorkspaceMembers,
   updateMemberRole,
   removeMember,
   leaveWorkspace,
