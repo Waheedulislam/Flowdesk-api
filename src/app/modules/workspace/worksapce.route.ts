@@ -10,6 +10,12 @@ router.get("/", auth(), WorkspaceController.getMyWorkspaces);
 
 router.get("/:slug", auth(), WorkspaceController.getWorkspaceBySlug);
 
+router.get(
+  "/:workspaceId/members",
+  auth(),
+  WorkspaceController.getWorkspaceMembers,
+);
+
 router.post(
   "/create-workspaces",
   auth(),

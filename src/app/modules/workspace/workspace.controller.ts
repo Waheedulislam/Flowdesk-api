@@ -45,6 +45,21 @@ const getWorkspaceBySlug = catchAsync(
     });
   },
 );
+const getWorkspaceMembers = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await WorkspaceService.getWorkspaceMembers(
+      req.params.workspaceId as string,
+      req.user!,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Workspace members retrieved successfully",
+      data: result,
+    });
+  },
+);
 
 const updateMemberRole = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
@@ -99,6 +114,7 @@ export const WorkspaceController = {
   createWorkspace,
   getMyWorkspaces,
   getWorkspaceBySlug,
+  getWorkspaceMembers,
   updateMemberRole,
   removeMember,
   leaveWorkspace,

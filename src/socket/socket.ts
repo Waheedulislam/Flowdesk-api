@@ -12,6 +12,12 @@ export const initializeSocket = (server: HttpServer) => {
   io.on("connection", (socket) => {
     console.log(`🔌 Socket connected: ${socket.id}`);
 
+    socket.on("join-workspace", (workspaceId: string) => {
+      socket.join(`workspace:${workspaceId}`);
+
+      console.log(`👥 Socket ${socket.id} joined workspace:${workspaceId}`);
+    });
+
     socket.on("disconnect", () => {
       console.log(`❌ Socket disconnected: ${socket.id}`);
     });
