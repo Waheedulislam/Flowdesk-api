@@ -389,9 +389,99 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
 
   return updatedInvitation;
 };
+const cancelInvitation = async (
+  workspaceId: string,
+  invitationId: string,
+  user: IAuthUser,
+) => {
+  // 1. Check workspace
+  const workspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+
+  // 2. Check current user's membership
+  const currentMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!currentMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Only OWNER and ADMIN can cancel invitations
+  if (
+    currentMember.role !== WorkspaceRole.OWNER &&
+    currentMember.role !== WorkspaceRole.ADMIN
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to cancel invitations",
+    );
+  }
+
+  // 4. Find invitation
+  const invitation = await prisma.invitation.findFirst({
+    where: {
+      id: invitationId,
+      workspaceId,
+    },
+  });
+
+  if (!invitation) {
+    throw new AppError(httpStatus.NOT_FOUND, "Invitation not found");
+  }
+
+  // 5. Only pending invitations can be cancelled
+  if (invitation.status !== InvitationStatus.PENDING) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Only pending invitations can be cancelled",
+    );
+  }
+
+  // 6. Cancel invitation
+  const cancelledInvitation = await prisma.invitation.update({
+    where: {
+      id: invitation.id,
+    },
+    data: {
+      status: InvitationStatus.CANCELLED,
+    },
+  });
+
+  // 7. Activity log
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId,
+    action: ActivityAction.CANCEL_INVITATION,
+    entity: ActivityEntity.INVITATION,
+    entityId: invitation.id,
+    metadata: {
+      invitedEmail: invitation.email,
+      role: invitation.role,
+    },
+  });
+
+  return cancelledInvitation;
+};
 
 export const InvitationService = {
   createInvitation,
   getWorkspaceInvitations,
   acceptInvitation,
+  cancelInvitation,
 };

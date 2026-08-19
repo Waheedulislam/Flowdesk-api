@@ -24,4 +24,10 @@ router.post(
   InvitationController.acceptInvitation,
 );
 
+router.delete(
+  "/workspace/:workspaceId/:invitationId",
+  auth(),
+  InvitationController.cancelInvitation,
+);
+
 export const InvitationRoutes = router;
