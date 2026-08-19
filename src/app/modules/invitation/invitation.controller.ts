@@ -27,6 +27,25 @@ const createInvitation = catchAsync(
     });
   },
 );
+const getWorkspaceInvitations = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    if (!req.user) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+    }
+
+    const result = await InvitationService.getWorkspaceInvitations(
+      req.params.workspaceId as string,
+      req.user,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Workspace invitations retrieved successfully",
+      data: result,
+    });
+  },
+);
 const acceptInvitation = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     if (!req.user) {
@@ -49,5 +68,6 @@ const acceptInvitation = catchAsync(
 
 export const InvitationController = {
   createInvitation,
+  getWorkspaceInvitations,
   acceptInvitation,
 };

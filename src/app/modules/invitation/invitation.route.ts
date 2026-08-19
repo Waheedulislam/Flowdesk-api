@@ -12,6 +12,11 @@ router.post(
   validateRequest(InvitationValidation.createInvitationValidationSchema),
   InvitationController.createInvitation,
 );
+router.get(
+  "/workspace/:workspaceId",
+  auth(),
+  InvitationController.getWorkspaceInvitations,
+);
 
 router.post(
   "/workspace/:token/accept",

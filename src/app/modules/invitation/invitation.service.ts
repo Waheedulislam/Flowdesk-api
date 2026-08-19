@@ -162,6 +162,63 @@ const createInvitation = async (
 
   return invitation;
 };
+
+const getWorkspaceInvitations = async (
+  workspaceId: string,
+  user: IAuthUser,
+) => {
+  // 1. Check workspace
+  const workspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+
+  if (!workspace) {
+    throw new AppError(httpStatus.NOT_FOUND, "Workspace not found");
+  }
+
+  // 2. Check current user's workspace membership
+  const currentMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId: user!.userId,
+      },
+    },
+  });
+
+  if (!currentMember) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+
+  // 3. Only OWNER and ADMIN can manage invitations
+  if (
+    currentMember.role !== WorkspaceRole.OWNER &&
+    currentMember.role !== WorkspaceRole.ADMIN
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to view workspace invitations",
+    );
+  }
+
+  // 4. Get pending invitations
+  const invitations = await prisma.invitation.findMany({
+    where: {
+      workspaceId,
+      status: InvitationStatus.PENDING,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return invitations;
+};
 const acceptInvitation = async (token: string, user: IAuthUser) => {
   // 1. Check Invitation
   const invitation = await prisma.invitation.findUnique({
@@ -335,5 +392,6 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
 
 export const InvitationService = {
   createInvitation,
+  getWorkspaceInvitations,
   acceptInvitation,
 };
