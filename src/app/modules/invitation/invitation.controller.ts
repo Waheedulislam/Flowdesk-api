@@ -12,12 +12,14 @@ const createInvitation = catchAsync(
     if (!req.user) {
       throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
     }
+    console.log(req.params.workspaceId as string, req.body, req.user);
 
     const result = await InvitationService.createInvitation(
       req.params.workspaceId as string,
       req.body,
       req.user,
     );
+    console.log(result);
 
     sendResponse(res, {
       statusCode: httpStatus.CREATED,
