@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WorkspaceRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const workspace_controller_1 = require("./workspace.controller");
+const workspace_validation_1 = require("./workspace.validation");
+const auth_1 = require("../../middleware/auth");
+const validateRequest_1 = __importDefault(require("../../middleware/validateRequest"));
+const router = express_1.default.Router();
+router.get("/", (0, auth_1.auth)(), workspace_controller_1.WorkspaceController.getMyWorkspaces);
+router.get("/:slug", (0, auth_1.auth)(), workspace_controller_1.WorkspaceController.getWorkspaceBySlug);
+router.get("/:workspaceId/members", (0, auth_1.auth)(), workspace_controller_1.WorkspaceController.getWorkspaceMembers);
+router.post("/create-workspaces", (0, auth_1.auth)(), (0, validateRequest_1.default)(workspace_validation_1.WorkspaceValidation.createWorkspaceValidationSchema), workspace_controller_1.WorkspaceController.createWorkspace);
+router.patch("/:workspaceId/members/:memberId/role", (0, auth_1.auth)(), (0, validateRequest_1.default)(workspace_validation_1.WorkspaceValidation.updateMemberRoleValidationSchema), workspace_controller_1.WorkspaceController.updateMemberRole);
+router.delete("/:workspaceId/members/:memberId", (0, auth_1.auth)(), workspace_controller_1.WorkspaceController.removeMember);
+router.post("/:workspaceId/leave", (0, auth_1.auth)(), workspace_controller_1.WorkspaceController.leaveWorkspace);
+exports.WorkspaceRoutes = router;

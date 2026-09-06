@@ -1,0 +1,18 @@
+export const defaultUserSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  status: true,
+  avatar: true,
+  avatarPublicId: true,
+  phone: true,
+  bio: true,
+  designation: true,
+  dateOfBirth: true,
+  gender: true,
+  jobTitle: true,
+  isVerified: true,
+  createdAt: true,
+  updatedAt: true,
+};

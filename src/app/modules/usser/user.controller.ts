@@ -19,6 +19,7 @@ const getMyProfile = catchAsync(
     });
   },
 );
+
 const updateMyProfile = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const user = req.user;
@@ -36,7 +37,48 @@ const updateMyProfile = catchAsync(
     });
   },
 );
+
+const uploadAvatar = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    if (!req.user) {
+      throw new Error("Unauthorized");
+    }
+
+    if (!req.file) {
+      throw new Error("No avatar file uploaded");
+    }
+
+    const result = await UserService.uploadMyAvatar(req.user, req.file);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Avatar uploaded successfully",
+      data: result,
+    });
+  },
+);
+
+const deleteAvatar = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    if (!req.user) {
+      throw new Error("Unauthorized");
+    }
+
+    const result = await UserService.deleteMyAvatar(req.user);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Avatar removed successfully",
+      data: result,
+    });
+  },
+);
+
 export const UserController = {
   getMyProfile,
   updateMyProfile,
+  uploadAvatar,
+  deleteAvatar,
 };
