@@ -142,6 +142,16 @@ const createInvitation = async (
     },
   });
 
+  if (invitedUser && invitedUser.id !== user!.userId) {
+    await createNotification({
+      userId: invitedUser.id,
+      title: "Workspace invitation",
+      message: `${inviter?.name ?? "A workspace member"} invited you to join "${workspace.name}".`,
+      type: NotificationType.WORKSPACE_INVITATION,
+      link: `/accept-invitation/${invitation.token}`,
+    });
+  }
+
   // Generate invitation link
   const inviteLink = `${process.env.CLIENT_URL}/accept-invitation/${invitation.token}`;
 

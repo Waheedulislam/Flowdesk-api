@@ -303,6 +303,7 @@ const updateTask = async (
   // sava old data after update
   const oldStatus = task.status;
   const oldAssignee = task.assignedTo;
+  const oldPriority = task.priority;
 
   // 5. Update Task
   const updatedTask = await prisma.task.update({
@@ -335,6 +336,22 @@ const updateTask = async (
       link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
     });
   }
+
+  if (
+    payload.priority &&
+    payload.priority !== oldPriority &&
+    updatedTask.assignedTo &&
+    updatedTask.assignedTo !== user!.userId
+  ) {
+    await createNotification({
+      userId: updatedTask.assignedTo,
+      title: "Task priority changed",
+      message: `The priority of task "${updatedTask.title}" changed to ${updatedTask.priority}.`,
+      type: NotificationType.TASK_UPDATED,
+      link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
+    });
+  }
+
   // 8. Create Activity Log
   await createActivityLog({
     userId: user!.userId,

@@ -2,9 +2,16 @@ import slugify from "slugify";
 import { ICreateWorkspace } from "./workspace.interface";
 import { IAuthUser } from "../../interface/common";
 import prisma from "../../../config/prisma";
-import { WorkspaceRole } from "../../../generated/prisma";
+import {
+  ActivityAction,
+  ActivityEntity,
+  NotificationType,
+  WorkspaceRole,
+} from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import httpStatus from "http-status-codes";
+import { createActivityLog } from "../activity-log/activity-log.utils";
+import { createNotification } from "../notification/notification.utils";
 
 const createWorkspace = async (payload: ICreateWorkspace, user: IAuthUser) => {
   const baseSlug = slugify(payload.name, {
@@ -54,6 +61,17 @@ const createWorkspace = async (payload: ICreateWorkspace, user: IAuthUser) => {
     });
 
     return workspace;
+  });
+
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId: result.id,
+    action: ActivityAction.CREATE,
+    entity: ActivityEntity.WORKSPACE,
+    entityId: result.id,
+    metadata: {
+      workspaceName: result.name,
+    },
   });
 
   return result;
@@ -212,6 +230,30 @@ const updateMemberRole = async (
     },
   });
 
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId,
+    action: ActivityAction.UPDATE_ROLE,
+    entity: ActivityEntity.WORKSPACE,
+    entityId: workspaceId,
+    metadata: {
+      memberId: updatedMember.id,
+      memberUserId: updatedMember.userId,
+      previousRole: targetMember.role,
+      newRole: updatedMember.role,
+    },
+  });
+
+  if (updatedMember.userId !== user!.userId) {
+    await createNotification({
+      userId: updatedMember.userId,
+      title: "Workspace role updated",
+      message: `Your role in "${workspace.name}" changed to ${updatedMember.role}.`,
+      type: NotificationType.WORKSPACE_ROLE_UPDATED,
+      link: "/workspace",
+    });
+  }
+
   return updatedMember;
 };
 const getWorkspaceMembers = async (workspaceId: string, user: IAuthUser) => {
@@ -332,6 +374,29 @@ const removeMember = async (
       id: targetMember.id,
     },
   });
+
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId,
+    action: ActivityAction.REMOVE_MEMBER,
+    entity: ActivityEntity.WORKSPACE,
+    entityId: workspaceId,
+    metadata: {
+      memberId: deletedMember.id,
+      memberUserId: deletedMember.userId,
+      role: deletedMember.role,
+    },
+  });
+
+  if (deletedMember.userId !== user!.userId) {
+    await createNotification({
+      userId: deletedMember.userId,
+      title: "Removed from workspace",
+      message: `You were removed from "${workspace.name}".`,
+      type: NotificationType.WORKSPACE_MEMBER_REMOVED,
+      link: "/workspace",
+    });
+  }
 
   return deletedMember;
 };

@@ -114,14 +114,15 @@ const addProjectMember = async (
     },
   });
 
-  // Create Notification
-  await createNotification({
-    userId: payload.userId,
-    title: "Added to Project",
-    message: `You have been added to "${project.name}".`,
-    type: NotificationType.PROJECT_CREATED,
-    link: `/projects/${project.id}`,
-  });
+  if (projectMember.userId !== user!.userId) {
+    await createNotification({
+      userId: projectMember.userId,
+      title: "Added to Project",
+      message: `You have been added to "${project.name}".`,
+      type: NotificationType.PROJECT_MEMBER_ADDED,
+      link: `/projects/${project.id}`,
+    });
+  }
 
   // Create Activity Log
   await createActivityLog({

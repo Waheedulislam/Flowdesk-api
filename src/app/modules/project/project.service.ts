@@ -2,14 +2,42 @@ import prisma from "../../../config/prisma";
 import {
   ActivityAction,
   ActivityEntity,
+  NotificationType,
   ProjectRole,
   WorkspaceRole,
 } from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
 import { IAuthUser } from "../../interface/common";
 import { createActivityLog } from "../activity-log/activity-log.utils";
+import { createNotification } from "../notification/notification.utils";
+import { ICreateNotification } from "../notification/notification.interface";
 import { ICreateProject } from "./project.interface";
 import httpStatus from "http-status-codes";
+
+const getWorkspaceNotificationRecipients = async (
+  workspaceId: string,
+  actorId: string,
+) => {
+  const members = await prisma.workspaceMember.findMany({
+    where: {
+      workspaceId,
+      userId: { not: actorId },
+    },
+    select: { userId: true },
+  });
+
+  return members.map((member) => member.userId);
+};
+
+const notifyProjectRecipients = async (
+  recipientUserIds: string[],
+  notification: Omit<ICreateNotification, "userId">,
+) =>
+  Promise.all(
+    recipientUserIds.map((userId) =>
+      createNotification({ userId, ...notification }),
+    ),
+  );
 
 const createProject = async (
   workspaceId: string,
@@ -86,6 +114,17 @@ const createProject = async (
     });
 
     return newProject;
+  });
+
+  const recipientUserIds = await getWorkspaceNotificationRecipients(
+    workspaceId,
+    user!.userId,
+  );
+  await notifyProjectRecipients(recipientUserIds, {
+    title: "Project created",
+    message: `${project.creator.name} created the project "${project.name}".`,
+    type: NotificationType.PROJECT_CREATED,
+    link: `/projects/${project.id}`,
   });
 
   return project;
@@ -249,6 +288,17 @@ const updateProject = async (
     },
   });
 
+  const recipientUserIds = await getWorkspaceNotificationRecipients(
+    project.workspaceId,
+    user!.userId,
+  );
+  await notifyProjectRecipients(recipientUserIds, {
+    title: "Project updated",
+    message: `Project "${updatedProject.name}" was updated.`,
+    type: NotificationType.PROJECT_UPDATED,
+    link: `/projects/${updatedProject.id}`,
+  });
+
   return updatedProject;
 };
 const deleteProject = async (projectId: string, user: IAuthUser) => {
@@ -290,6 +340,10 @@ const deleteProject = async (projectId: string, user: IAuthUser) => {
 
   // Save project info before delete
   const projectName = project.name;
+  const recipientUserIds = await getWorkspaceNotificationRecipients(
+    project.workspaceId,
+    user!.userId,
+  );
 
   await prisma.project.delete({
     where: {
@@ -308,6 +362,13 @@ const deleteProject = async (projectId: string, user: IAuthUser) => {
       projectName,
       workspaceId: project.workspaceId,
     },
+  });
+
+  await notifyProjectRecipients(recipientUserIds, {
+    title: "Project deleted",
+    message: `Project "${projectName}" was deleted.`,
+    type: NotificationType.PROJECT_DELETED,
+    link: "/projects",
   });
 
   return null;

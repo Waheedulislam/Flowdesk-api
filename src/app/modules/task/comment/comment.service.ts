@@ -12,6 +12,43 @@ import {
 import { createNotification } from "../../notification/notification.utils";
 import { createActivityLog } from "../../activity-log/activity-log.utils";
 
+const notifyTaskParticipants = async (
+  task: {
+    id: string;
+    projectId: string;
+    title: string;
+    createdBy: string;
+    assignedTo: string | null;
+  },
+  commentAuthorId: string,
+  actorId: string,
+  action: "updated" | "deleted",
+) => {
+  const recipientUserIds = new Set<string>();
+
+  for (const recipientId of [
+    task.createdBy,
+    task.assignedTo,
+    commentAuthorId,
+  ]) {
+    if (recipientId && recipientId !== actorId) {
+      recipientUserIds.add(recipientId);
+    }
+  }
+
+  await Promise.all(
+    [...recipientUserIds].map((userId) =>
+      createNotification({
+        userId,
+        title: `Comment ${action}`,
+        message: `A comment on task "${task.title}" was ${action}.`,
+        type: NotificationType.TASK_COMMENT,
+        link: `/projects/${task.projectId}/tasks/${task.id}`,
+      }),
+    ),
+  );
+};
+
 const createComment = async (
   taskId: string,
   payload: ICreateComment,
@@ -267,6 +304,28 @@ const updateComment = async (
     },
   });
 
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId: comment.task.project.workspaceId,
+    action: ActivityAction.UPDATE,
+    entity: ActivityEntity.COMMENT,
+    entityId: updatedComment.id,
+    metadata: {
+      taskId: comment.task.id,
+      projectId: comment.task.projectId,
+      taskTitle: comment.task.title,
+      commentId: updatedComment.id,
+      commentBy: updatedComment.user.name,
+    },
+  });
+
+  await notifyTaskParticipants(
+    comment.task,
+    updatedComment.userId,
+    user!.userId,
+    "updated",
+  );
+
   return updatedComment;
 };
 
@@ -323,6 +382,28 @@ const deleteComment = async (commentId: string, user: IAuthUser) => {
       id: commentId,
     },
   });
+
+  await createActivityLog({
+    userId: user!.userId,
+    workspaceId: comment.task.project.workspaceId,
+    action: ActivityAction.DELETE,
+    entity: ActivityEntity.COMMENT,
+    entityId: comment.id,
+    metadata: {
+      taskId: comment.task.id,
+      projectId: comment.task.projectId,
+      taskTitle: comment.task.title,
+      commentId: comment.id,
+      commentBy: comment.userId,
+    },
+  });
+
+  await notifyTaskParticipants(
+    comment.task,
+    comment.userId,
+    user!.userId,
+    "deleted",
+  );
 
   return null;
 };
