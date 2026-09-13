@@ -350,7 +350,7 @@ const acceptInvitation = async (token: string, user: IAuthUser) => {
       title: "Invitation Accepted",
       message: `${currentUser?.name ?? "A user"} has joined your workspace "${workspace.name}".`,
       type: NotificationType.WORKSPACE_INVITATION,
-      link: `/workspaces/${workspace.id}`,
+      link: "/workspace",
     });
 
     // 9. Send Email to Workspace Owner

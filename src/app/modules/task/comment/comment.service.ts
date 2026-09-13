@@ -43,7 +43,7 @@ const notifyTaskParticipants = async (
         title: `Comment ${action}`,
         message: `A comment on task "${task.title}" was ${action}.`,
         type: NotificationType.TASK_COMMENT,
-        link: `/projects/${task.projectId}/tasks/${task.id}`,
+        link: `/tasks/${task.id}`,
       }),
     ),
   );
@@ -140,7 +140,7 @@ const createComment = async (
         title: "New Comment",
         message: `${comment.user.name} commented on the task "${task.title}".`,
         type: NotificationType.TASK_COMMENT,
-        link: `/projects/${task.projectId}/tasks/${task.id}`,
+        link: `/tasks/${task.id}`,
       }),
     ),
   );

@@ -88,13 +88,13 @@ const createTask = async (
     },
   });
   // 6. Send Notification (if task assigned)
-  if (task.assignedTo) {
+  if (task.assignedTo && task.assignedTo !== user!.userId) {
     await createNotification({
       userId: task.assignedTo,
       title: "New Task Assigned",
       message: `You have been assigned a new task: "${task.title}".`,
       type: NotificationType.TASK_ASSIGNED,
-      link: `/projects/${projectId}/tasks/${task.id}`,
+      link: `/tasks/${task.id}`,
     });
   }
   // 7. Create Activity Log
@@ -316,25 +316,49 @@ const updateTask = async (
     },
   });
   // 6. Notify New Assignee
-  if (payload.assignedTo && payload.assignedTo !== task.assignedTo) {
+  if (
+    payload.assignedTo &&
+    payload.assignedTo !== task.assignedTo &&
+    payload.assignedTo !== user!.userId
+  ) {
     await createNotification({
       userId: payload.assignedTo,
       title: "Task Assigned",
       message: `You have been assigned the task "${updatedTask.title}".`,
       type: NotificationType.TASK_ASSIGNED,
-      link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
+      link: `/tasks/${updatedTask.id}`,
     });
   }
 
-  // 7. Notify Task Creator if Status Changed
-  if (payload.status && payload.status !== task.status) {
-    await createNotification({
-      userId: task.createdBy,
-      title: "Task Status Updated",
-      message: `Task "${updatedTask.title}" status changed to ${updatedTask.status}.`,
-      type: NotificationType.TASK_UPDATED,
-      link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
-    });
+  const taskUpdateNotifications = new Map<
+    string,
+    { title: string; messages: string[] }
+  >();
+  const addTaskUpdateNotification = (
+    recipientId: string,
+    title: string,
+    message: string,
+  ) => {
+    const existing = taskUpdateNotifications.get(recipientId);
+    if (existing) {
+      existing.title = "Task updated";
+      existing.messages.push(message);
+      return;
+    }
+
+    taskUpdateNotifications.set(recipientId, { title, messages: [message] });
+  };
+
+  if (
+    payload.status &&
+    payload.status !== task.status &&
+    task.createdBy !== user!.userId
+  ) {
+    addTaskUpdateNotification(
+      task.createdBy,
+      "Task Status Updated",
+      `Task "${updatedTask.title}" status changed to ${updatedTask.status}.`,
+    );
   }
 
   if (
@@ -343,22 +367,33 @@ const updateTask = async (
     updatedTask.assignedTo &&
     updatedTask.assignedTo !== user!.userId
   ) {
-    await createNotification({
-      userId: updatedTask.assignedTo,
-      title: "Task priority changed",
-      message: `The priority of task "${updatedTask.title}" changed to ${updatedTask.priority}.`,
-      type: NotificationType.TASK_UPDATED,
-      link: `/projects/${updatedTask.projectId}/tasks/${updatedTask.id}`,
-    });
+    addTaskUpdateNotification(
+      updatedTask.assignedTo,
+      "Task priority changed",
+      `The priority of task "${updatedTask.title}" changed to ${updatedTask.priority}.`,
+    );
   }
+
+  await Promise.all(
+    [...taskUpdateNotifications].map(([recipientId, notification]) =>
+      createNotification({
+        userId: recipientId,
+        title: notification.title,
+        message: notification.messages.join(" "),
+        type: NotificationType.TASK_UPDATED,
+        link: `/tasks/${updatedTask.id}`,
+      }),
+    ),
+  );
 
   // 8. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
     workspaceId: task.project.workspaceId,
-    action: payload.status
-      ? ActivityAction.CHANGE_STATUS
-      : ActivityAction.UPDATE,
+    action:
+      payload.status && payload.status !== oldStatus
+        ? ActivityAction.CHANGE_STATUS
+        : ActivityAction.UPDATE,
     entity: ActivityEntity.TASK,
     entityId: updatedTask.id,
     metadata: {

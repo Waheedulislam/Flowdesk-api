@@ -271,14 +271,15 @@ const updateProjectMemberRole = async (
     },
   });
 
-  // 5. Create Notification
-  await createNotification({
-    userId: updatedMember.userId,
-    title: "Project Role Updated",
-    message: `Your role has been changed to ${updatedMember.role}.`,
-    type: NotificationType.PROJECT_ROLE_UPDATED,
-    link: `/projects/${updatedMember.projectId}`,
-  });
+  if (updatedMember.userId !== user!.userId) {
+    await createNotification({
+      userId: updatedMember.userId,
+      title: "Project Role Updated",
+      message: `Your role has been changed to ${updatedMember.role}.`,
+      type: NotificationType.PROJECT_ROLE_UPDATED,
+      link: `/projects/${updatedMember.projectId}`,
+    });
+  }
   // 6. Create Activity Log
   await createActivityLog({
     userId: user!.userId,
@@ -341,14 +342,15 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
       },
     });
 
-    // Create Notification
-    await createNotification({
-      userId: removedUserId,
-      title: "Removed from Project",
-      message: `You have been removed from "${projectName}".`,
-      type: NotificationType.PROJECT_MEMBER_REMOVED,
-      link: `/projects/${projectId}`,
-    });
+    if (removedUserId !== user!.userId) {
+      await createNotification({
+        userId: removedUserId,
+        title: "Removed from Project",
+        message: `You have been removed from "${projectName}".`,
+        type: NotificationType.PROJECT_MEMBER_REMOVED,
+        link: `/projects/${projectId}`,
+      });
+    }
 
     // Create Activity Log
     await createActivityLog({
@@ -405,14 +407,15 @@ const removeProjectMember = async (memberId: string, user: IAuthUser) => {
     },
   });
 
-  // 8. Create Notification
-  await createNotification({
-    userId: removedUserId,
-    title: "Removed from Project",
-    message: `You have been removed from "${projectName}".`,
-    type: NotificationType.PROJECT_MEMBER_REMOVED,
-    link: `/projects/${projectId}`,
-  });
+  if (removedUserId !== user!.userId) {
+    await createNotification({
+      userId: removedUserId,
+      title: "Removed from Project",
+      message: `You have been removed from "${projectName}".`,
+      type: NotificationType.PROJECT_MEMBER_REMOVED,
+      link: `/projects/${projectId}`,
+    });
+  }
   // Create Activity Log
   await createActivityLog({
     userId: user!.userId,

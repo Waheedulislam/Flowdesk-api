@@ -180,6 +180,9 @@ model Notification {
   link      String?
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
 }
 
 model ActivityLog {
@@ -196,6 +199,8 @@ model ActivityLog {
   entityId  String
   metadata  Json?
   createdAt DateTime       @default(now())
+
+  @@index([workspaceId, createdAt])
 }
 
 model RefreshToken {
