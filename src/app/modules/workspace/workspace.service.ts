@@ -6,6 +6,8 @@ import {
   ActivityAction,
   ActivityEntity,
   NotificationType,
+  UserStatus,
+  WorkspaceStatus,
   WorkspaceRole,
 } from "../../../generated/prisma";
 import AppError from "../../Errors/AppError";
@@ -443,6 +445,39 @@ const leaveWorkspace = async (workspaceId: string, user: IAuthUser) => {
   return null;
 };
 
+const hasActiveMembership = async (userId: string, workspaceId: string) => {
+  const membership = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId,
+        userId,
+      },
+    },
+    select: {
+      user: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+      workspace: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+    },
+  });
+
+  return Boolean(
+    membership &&
+    membership.user.id === userId &&
+    membership.user.status === UserStatus.ACTIVE &&
+    membership.workspace.id === workspaceId &&
+    membership.workspace.status === WorkspaceStatus.ACTIVE,
+  );
+};
+
 export const WorkspaceService = {
   createWorkspace,
   getMyWorkspaces,
@@ -451,4 +486,5 @@ export const WorkspaceService = {
   updateMemberRole,
   removeMember,
   leaveWorkspace,
+  hasActiveMembership,
 };
