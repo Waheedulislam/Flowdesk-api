@@ -26,6 +26,7 @@ const loginUser = catchAsync(async (req, res) => {
     httpOnly: true,
     secure: config.env === "production",
     sameSite: "lax",
+    path: "/api/v1/auth",
   });
 
   sendResponse(res, {
@@ -43,11 +44,34 @@ const refreshToken = catchAsync(async (req, res) => {
 
   const result = await AuthService.refreshToken(refreshToken);
 
+  res.cookie("refreshToken", result.refreshToken, {
+    httpOnly: true,
+    secure: config.env === "production",
+    sameSite: "lax",
+    path: "/api/v1/auth",
+  });
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Refresh token generated successfully",
-    data: result,
+    data: { accessToken: result.accessToken },
+  });
+});
+
+const logout = catchAsync(async (req, res) => {
+  await AuthService.logout(req.cookies.refreshToken);
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: config.env === "production",
+    sameSite: "lax",
+    path: "/api/v1/auth",
+  });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Logged out successfully",
+    data: null,
   });
 });
 
@@ -55,4 +79,5 @@ export const AuthController = {
   registerUser,
   loginUser,
   refreshToken,
+  logout,
 };

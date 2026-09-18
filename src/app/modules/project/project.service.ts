@@ -51,6 +51,16 @@ const createProject = async (
         description: payload.description,
         createdBy: user!.userId,
       },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
     });
 
     // Automatically add creator as Project Admin
@@ -110,6 +120,16 @@ const getProjects = async (workspaceId: string, user: IAuthUser) => {
   const projects = await prisma.project.findMany({
     where: {
       workspaceId,
+    },
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -204,6 +224,16 @@ const updateProject = async (
       id: projectId,
     },
     data: payload,
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+      },
+    },
   });
 
   // Create Activity Log
